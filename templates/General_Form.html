@@ -1,0 +1,54 @@
+{% extends 'Base_Layout.html' %}
+{% block title %} {{ title }} {% endblock %}
+{% block dynamic_style %}
+<style>
+form{
+    margin-top: 10vh;width: 40%;
+    margin-left: 30%;border-radius: 1.5%;border: none;
+    background-color: lightskyblue;
+   height: fit-content;position: relative;
+
+}
+form>div{
+    width:44%;margin-right:4%;height: fit-content;
+    float: right;text-align: center;
+}
+form>div:nth-child(2n){
+    clear: right;
+}
+form>div>input,textarea,select,option
+{
+    width: 44%;margin-right:4%;border: none;box-shadow: 1px 1px 1px gray;
+    border-radius: 1.5%;outline: none;height: 2vh;resize: none;
+}
+
+form>div>button{
+    border: none;background-color:lightgreen;color: whitesmoke;border-radius: 1.5%;
+    height: 3vh;width: 100%;font-size: 100%;
+}
+</style>
+
+{% endblock %}
+{% block main_content %}
+<form method="post" action="{% url url_name %}">
+{% csrf_token %}
+{% for field in form %}
+<div>
+{{ field.label }}
+<br>
+{{ field }}
+<br>
+<p style="color: red">
+    {{ field.errors }}
+</p>
+</div>
+{% endfor %}
+ <div>
+    <button>
+        انجام
+    </button>
+ </div>
+
+</form>
+
+{% endblock %}

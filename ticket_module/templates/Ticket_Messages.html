@@ -1,0 +1,115 @@
+{% extends 'Base_Layout.html' %}
+
+{% block title %}
+تیکت های من
+{% endblock %}
+
+{% block dynamic_style %}
+<style>
+form#ticket_form{
+    margin-top: 2vh;
+    text-align: center;
+height: fit-content;width: 80%;margin-left: 10%;border: none;border-radius: 1.5%;box-shadow: 1px 1px 1px lightgray;
+    font-size: calc(2vh);
+
+}
+form#ticket_form>input,select,option,textarea{
+    height: 1.5vh;border: none;outline: none;resize: none;box-shadow: 1px 1px 1px lightgray;
+    border-radius: 1.5%;
+}
+#messages_container
+{
+    height: fit-content;width: 80%;margin-left: 10%;text-align: right;font-size: calc(2vh);
+    display: flex;flex-direction: column;margin-top: 3vh;
+}
+#messages_container>div.message{
+    height: fit-content;width: 60%;margin-left: 40%;border-radius: 1.5%;box-shadow: 2px 2px 2px lightgray;
+    background-color: lightgray; color: black;text-align: right;margin-top: 1vh;
+}
+#messages_container>div.message>.responses_container{
+    width:100%;height: fit-content;display: none;
+}
+.responses_container>.response{
+    height: fit-content;width: 60%;margin-left: 20%;border-radius: 1.5%;
+    background-color: gray; color: black;text-align: right;margin-top: 1vh;
+    position: relative;
+}
+.response>button{
+    position: absolute;top:0;left: 0;background-color: red;color: whitesmoke;border: none;
+}
+</style>
+
+{% endblock %}
+
+{% block main_content %}
+    <form id="ticket_form" >
+    {% csrf_token %}
+    ثبت پیام جدید
+    <br>
+    {% for field in ticket_form %}
+    {{ field.label }}
+        <br>
+        {{ field }}
+        <br>
+    {% endfor %}
+    <button onclick="event.preventDefault();create_new_ticket()">
+        ثبت پیام
+    </button>
+    </form>
+<section id="messages_container">
+پیام  های من
+{% for message in messages %}
+<div class="message">
+شما گفتید:
+<br>
+{{ message.text }}
+<br>
+{{ message.date }}
+<br>
+<p onclick="open_close_replies(this)">
+   نمایش پاسخ ها
+</p>
+<div class="responses_container" >
+    {% for response in message.sup_responses %}
+        <div class="response">
+          {{ response.text }}
+        <br>
+        {{ response.date}}
+        {% if not response.is_read %}
+         <button onclick="mark_as_read(this,'{{ response.id }}')">
+         خواندم
+         </button>
+        {% endif %}
+        </div>
+        {% endfor %}
+</div>
+</div>
+
+{% endfor %}
+</section>
+
+{% endblock %}
+{% block scripts %}
+<script>
+const csrf_token=ticket_form.querySelector('[name=csrfmiddlewaretoken]').value;
+function open_close_replies(el)
+{
+    const container=el.parentElement.querySelector('div.responses_container');
+
+    const is_open=container.style.display=='block';
+    console.log('sds',is_open,container.style.display)
+    container.style.display=is_open?'none':'block';
+    el.innerText=!is_open?'پنهان کردن پاسخ ها':'نمایش پاسخ ها'
+
+}
+function mark_as_read(button,response_id)
+{
+    const data=new FormData();
+    data.append('response_id',response_id)
+    fetch('{% url 'mark_response_as_read' %}',{method:"POST",body:data,headers:{'X-csrftoken':csrf_token}}).then(res=>res.json()).then(res=>console.log(res)).catch(
+        res=>console.log(res)
+    )
+}
+</script>
+
+{% endblock %}

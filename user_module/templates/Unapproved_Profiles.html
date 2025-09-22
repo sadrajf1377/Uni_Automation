@@ -1,0 +1,19 @@
+{% extends 'General_Table.html' %}
+
+{% block table_content %}
+<tr>
+<td>تاریخ ثبت نام</td>
+<td>نوع کاربر</td>
+<td>نام کاربر</td>
+<td></td>
+</tr>
+{% for user in users %}
+    <tr>
+    <td>{{ user.date_joined }}</td>
+    <td>{{ user.user_type }}</td>
+    <td>{{ user.username }}</td>
+    <td></td>
+    </tr>
+
+    {% endfor %}
+{% endblock %}

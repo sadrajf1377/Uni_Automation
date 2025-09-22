@@ -1,0 +1,147 @@
+{% extends 'Base_Layout.html' %}
+{% block title %}
+دروس ارائه شده
+{% endblock %}
+{% block dynamic_style %}
+ <style>
+        section.parts{
+            width: 80%;height: fit-content;margin-left: 10%;
+        }
+        form{
+            height: fit-content;border-radius: 1.5%;font-size: calc(1vh);width: 100%;
+        }
+        form>div{
+            height: fit-content;font-size: calc(2vh);float: right;width: 40%;margin-right: 5%;text-align: center;
+        }
+        form>div>input,select,option,textarea,option{
+            width: 30%;border: none;border-radius: 1.5%;box-shadow: 2px 2px 2px lightgray;
+            resize: none;outline: none;
+        }
+        form>div>input:nth-child(2n){clear-after: right}
+        table{
+            width: 80%;margin-left: 10%;height:fit-content;border-radius: 1.5%;
+            box-shadow: 5px 5px 5px lightgray;
+        }
+        tr{
+            width: 100%;height: fit-content;
+        }
+        td{
+            font-size: calc(0.5vh + .5vw);border: 1px solid black;color: black;text-align: center;width: 12.5%;text-align: center;
+        }
+        td:nth-child(1n){background-color: lightgray}
+        td:nth-child(2n){background-color: whitesmoke}
+    </style>
+{% endblock %}
+{% block main_content %}
+    {% csrf_token %}
+    {{ stats }}
+   <section class="parts" >
+
+    <table>
+    دروس این ترم دانشجو
+        <tr>
+            <td>نام استاد</td>
+            <td>تعداد واحد</td>
+            <td>دانشکده</td>
+            <td>مقطع</td>
+            <td>نوع درس</td>
+            <td>ظرفیت باقی مانده</td>
+            <td>عنوان درس</td>
+        </tr>
+        {% for course in student_courses %}
+        <tr>
+            <td>{{ course.teacher.last_name }}</td>
+            <td>{{ course.credits }}</td>
+            <td>{{ course.department }}</td>
+            <td>{{ course.for_degrees }}</td>
+            <td>{{ course.course_type }}</td>
+            <td>{{ course.cap_left }}</td>
+        <td>{{ course.title }}</td>
+        </tr>
+        {% endfor %}
+
+    </table>
+</section>
+<section class="parts" style="margin-top: 5vh">
+    <form>
+        {% for field in search_form %}
+        <div>
+        {{ field.label }}
+        <br>
+        {{ field }}
+        </div>
+        {% endfor %}
+    <div>
+        <button onclick="event.preventDefault();set_filters()">
+            جست و جو
+        </button>
+    </div>
+    </form>
+
+</section>
+
+<section class="parts" style="margin-top: 5vh">
+
+    <table>
+        <tr>
+            <td></td>
+            <td>نام استاد</td>
+            <td>تعداد واحد</td>
+            <td>دانشکده</td>
+            <td>مقطع</td>
+            <td>نوع درس</td>
+            <td>ظرفیت باقی مانده</td>
+            <td>عنوان درس</td>
+        </tr>
+        {% for course in courses %}
+        <tr >
+        <td><button onclick="pick_course('{{ course.id }}')">برداشتن درس</button></td>
+            <td>{{ course.teacher.last_name }}</td>
+            <td>{{ course.credits }}</td>
+            <td>{{ course.department }}</td>
+            <td>{{ course.for_degrees }}</td>
+            <td>{{ course.course_type }}</td>
+            <td>{{ course.cap_left }}</td>
+            <td>{{ course.title }}</td>
+
+        </tr>
+        {% endfor %}
+    <tr>
+        <td>
+            صفحات
+        </td>
+        {% for number in paginator.page_range %}
+            <td>
+         <a href="{% url 'courses_list' 'all' 'all' 'all' 'all' %}/?page_number={{ number }}">
+         {% if number == paginator.page %}
+             ___{{ number }}
+         {% else %}
+             {{ number }}
+         {% endif %}
+         </a>
+            </td>
+        {% endfor %}
+    </tr>
+    </table>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+const form=document.querySelector('form');
+const csrf_token=document.getElementsByName('csrfmiddlewaretoken')[0].value;
+function set_filters()
+{
+    const tile=form.querySelector('input#id_title').value;
+    const dep=form.querySelector('select#id_department').value;
+    const type=form.querySelector('select#id_course_type').value;
+    const degree=form.querySelector('select#id_for_degrees').value;
+   const url='http://127.0.0.1:8000/courses/courses_list/'+`${tile!=""?tile:"all"}/${dep}/${degree}/${type}`;
+   window.open(url)
+}
+function pick_course(course_id)
+{
+const url='http://127.0.0.1:8000/courses/pick_course/'+`${course_id}`;
+fetch(url,{headers:{'X-csrftoken':csrf_token},method:'POST'}).then(res=>res.json()).then(res=>{console.log(res.message,res.errors)}).catch(res=>console.log(res.message,res.errros))
+}
+</script>
+{% endblock %}

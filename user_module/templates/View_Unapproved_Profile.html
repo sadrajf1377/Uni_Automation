@@ -1,0 +1,96 @@
+{% extends 'General_Table.html' %}
+{% block dynamic_style %}
+<style>
+td{
+    border: none;border-radius: 1.5%;box-shadow: 1px 1px 1px lightgray;
+}
+</style>
+{% endblock %}
+
+{% block main_content %}
+<tr>
+<td>
+نام
+    <br>
+    {{ profile.user.username }}
+</td>
+<td>
+    جنسیت
+    <br>
+    {{ profile.sex }}
+</td>
+<td>
+    کد محل فعالیت
+    <br>
+    {{ profile.area_code }}
+</td>
+
+</tr>
+    <!--  second row  !-->
+<tr>
+<td>
+آخرین مقطع تحصیلی
+    <br>
+    {{ profile.latest_degree }}
+</td>
+<td>
+    تصویر آخرین مقطع تحصیلی
+    <br>
+    <a href="{{ profile.latest_certificate_picture.picture.url }}"></a>
+</td>
+<td>
+    کد رشته آخرین مقطع
+    <br>
+    {{ profile.latest_degree_code }}
+</td>
+
+</tr>
+
+    {% if prof_type == 'student' %}
+       <tr>
+<td>
+شماره دانشجویی
+    <br>
+    {{ profile.student_number }}
+</td>
+<td>
+    مقطع فعلی
+    <br>
+    {{ profile.degree }}
+</td>
+<td>
+    کد رشته آخرین مقطع
+    <br>
+    {{ profile.latest_degree_code }}
+</td>
+
+</tr>
+    {% elif prof_type == 'teacher' %}
+              <tr>
+<td>
+مرتبه علمی
+    <br>
+    {{ profile. rank }}
+</td>
+<td>
+    نقش
+    <br>
+    {{ profile.role }}
+</td>
+<td>
+    استاد هیت علمی می باشد؟
+    <br>
+    {% if profile.is_faculty %} ✅ {% else %} ❌ {% endif %}
+</td>
+
+</tr>
+        {% elif prof_type == 'employee' %}
+             <tr>
+<td>
+نوع کارمند
+    <br>
+    {{ profile.role }}
+</td>
+</tr>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'Base_Layout.html' %}
+{% block dynamic_style %}
+<style>
+table{
+    height: fit-content;width: 60vw;margin-left: 20vw;margin-top: 10vh;table-layout: fixed;
+}
+tr{
+    width: 100%;height: fit-content;
+}
+td{
+    height: fit-content;font-size: calc(2vh);border: 1px solid black;
+   text-align: center;
+}
+tr:nth-child(1n){background-color: lightgray}
+tr:nth-child(2n){background-color: whitesmoke}
+td:last-child{width: 5%}
+</style>
+{% endblock %}
+{% block main_content %}
+<table>
+{% block table_content %}
+
+    {% endblock %}
+</table>
+
+{% endblock %}

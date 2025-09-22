@@ -1,0 +1,81 @@
+{% extends 'Base_Layout.html' %}
+{% load polls_extra %}
+
+{% block title %}ارزیابی اساتید{% endblock %}
+{% block dynamic_style %}
+<style>
+table{
+    height: fit-content;width: 50vw;margin-left: 25vw;margin-top: 12vh;
+}
+tr{width: 100%;height: fit-content}
+td{width: 15%;height: fit-content;font-size: calc(2vh);border: 1px solid black;text-align: center}
+td:last-child{width: 10%}
+tr:nth-child(1n){background-color: whitesmoke}
+tr:nth-child(2n){background-color: lightgray}
+
+</style>
+{% endblock %}
+
+{% block main_content %}
+
+<table id="review_table">
+<tr>
+    <td>عالی</td>
+    <td>خوب</td>
+    <td>متوسط</td>
+    <td>ضعیف</td>
+    <td>خیلی ضعیف</td>
+
+    <td></td>
+</tr>
+{% with 0|get_review_choices as choices %}
+{% for rev in reviews %}
+<tr>
+
+   {% for r in choices  %}
+       <td class="review_choice">
+       <input type="checkbox" {% if r == rev.review %} checked {% endif %} oninput="check(this)" data-review_id="{{ rev.id }}" data-value="{{ r }}">
+       </td>
+       {% endfor %}
+    <td>{{ rev.question.q_text }}</td>
+</tr>
+
+{% endfor %}
+{% endwith %}
+<tr >
+    <td><button style="width: 100%;height: 100%;background-color: whitesmoke">ثبت تغییرات</button></td>
+    <td><form action="{% url 'close_review_session' %}" method="post" >{% csrf_token %}<input name="session_id" type="text" style="display: none" value="{{ review_session_id }}"><button style="width: 100%;height: 100%;background-color: lightgray">تایید نهایی</button></form></td>
+</tr>
+</table>
+
+{% endblock %}
+{% block scripts %}
+<script>
+function check(elm)
+{
+    const parent=elm.parentElement.parentElement.querySelectorAll('td.review_choice');
+    for(const td of parent)
+    {
+
+        const inp=td.querySelector('input');
+
+        inp.checked=inp===elm;
+    }
+}
+const csrf_token=document.getElementsByName('csrfmiddlewaretoken')[0].value;
+function submit_changes()
+{
+
+    const review_table=document.getElementById('review_table');
+    const reviews_answers={};
+
+    const  inps=review_table.querySelectorAll('input:checked');
+    for(const inp of inps){
+        reviews_answers[inp.getAttribute('data-review_id')]=inp.getAttribute('data-value')
+    };
+    console.log(reviews_answers)
+    const json_data=JSON.stringify({'review_session_id':'{{review_session_id}}','reviews_answers':reviews_answers})
+    fetch('{% url 'update_review_session' %}',{headers:{'X-csrftoken':csrf_token,'Content-Type': 'application/json'},body:json_data,method:'POST'}).then(res=>res.json()).then(res=>console.log(res)).catch(res=>console.log(res))
+}
+</script>
+{% endblock %}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        table{
+            height: fit-content;width: 40vw;position: fixed;border: 1px solid black;border-radius: 1.5%;
+            display: flex;flex-direction: column;direction: rtl;top:5vh;left: 30vw;
+        }
+        tr{
+            height: fit-content;width: 100%;
+        }
+        td{
+            font-size:calc(1.5vw);color: black;height: fit-content;width:15%;direction: rtl;
+            text-align: center;font-family: "B Nazanin";box-shadow: 5px 5px 5px lightgray;
+        }
+    </style>
+</head>
+<body>
+<table>
+    <tr style="background-color:coral">
+        <td></td>
+        <td>8-10</td>
+        <td>10-12</td>
+        <td>12-14</td>
+        <td>14-16</td>
+        <td>16-18</td>
+        <td>18-20</td>
+    </tr>
+        {% for key,value in days.items %}
+       <tr>
+        <td>
+            {{ key }}
+        </td>
+        {% for cl in value %}
+             <td>
+               {{ cl }}
+             </td>
+            {% endfor %}
+       </tr>
+
+    {% endfor %}
+</table>
+</body>
+</html>

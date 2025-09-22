@@ -1,0 +1,39 @@
+services:
+  uni_automation:
+    container_name: 'Uni_Automation'
+    environment:
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-mvw84&&rc4y+x3n%*4ae+gx+wd2cesfa6gdi4rtk&hmuj_tyx1
+    build:
+      context: ./
+      dockerfile: .Dockerfile
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000 "
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      - redis
+      - celery
+
+  redis:
+    image: redis:7.0.11-alpine
+  celery:
+    container_name: 'celery'
+    command: celery -A Uni_Automation worker --loglevel=info
+    build:
+      context: ./
+      dockerfile: .Dockerfile
+    volumes:
+      - .:/app
+
+    environment:
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-!o1_ju3&t13tyx=)ho4=81+7^$$#(&_u$wz@a1(s0b$e7@z5a1
+    depends_on:
+      - redis
+
+

@@ -1,0 +1,190 @@
+{% extends 'Base_Layout.html' %}
+{% block title %}
+    جزییات درس
+{{ course.title }}
+{% endblock %}
+{% block dynamic_style %}
+<style>
+section#main{
+    width: 100vw;height: fit-content;margin-top:10vh;display: flex;flex-direction:row-reverse;flex-shrink: unset;
+}
+section#main_table{
+    width: 80%;margin-right: 1%;height: fit-content;
+}
+section#second_table{
+    width: 15%;margin-right: 1%;height: fit-content;display: flex;flex-direction: column;
+}
+table{
+    height: fit-content;width: 40%;margin-left:30%;border: 1px solid black;margin-top: 2vh;
+    border:1px solid black;box-shadow: 5px 5px 5px black;
+}
+tr{
+    width: 100%;height: fit-content;
+}
+td{
+    height: fit-content;font-size: calc(2vh);width: 20%;border: 1px solid black;text-align: center;
+}
+td>input,button{
+    width: 90%;height:100%;outline: none;margin-left: 5%;
+}
+
+table#scores_to_update>tr>td{
+    width: 33.333%;
+}
+table#students_to_delete>tr>td{
+    width: 100%;
+}
+section#main_table>table>tr>td:nth-child(1n){background-color: whitesmoke}
+section#main_table>table>tr>td:nth-child(2n){background-color: gray}
+</style>
+{% endblock %}
+{% block main_content %}
+    {% csrf_token %}
+    <section id="second_table">
+    <table id="students_to_delete" >
+        <p>دانشجویان حذفی
+
+        </p>
+        <tr>
+            <td>
+                نام دانشجو
+            </td>
+        </tr>
+    </table>
+    <table id="scores_to_update">
+        نمرات تغییر یافته
+        <tr id="-1">
+            <td>نام دانشجو</td>
+            <td>نمره جدید</td>
+            <td>نمره قدیم</td>
+        </tr>
+    </table>
+    </section>
+    <section id="main_table">
+<table>
+<tr >
+     <td>
+
+     </td>
+    <td>نام دانشجو</td>
+    <td>نمره</td>
+   <td></td>
+
+
+</tr>
+
+    {% for st in students %}
+        <tr>
+      <td><button onclick="add_or_remove_students('{{ st.id }}',this,'{{ st.username }}')">حذف دانشجو</button></td>
+    <td>{{ st.username }}</td>
+    <td><input type="number" value="{{ st.score }}" data-initial_value="{{ st.score }}" data-name="{{ st.username }}" data-id="{{ st.id }}"
+               oninput="update_score(this)"></td>
+        <td class="row_number"></td>
+
+        </tr>
+
+    {% endfor %}
+<tr>
+    <td>
+        <button onclick="submit_changes()">
+ثبت تغییرات
+</button>
+    </td>
+</tr>
+
+</table>
+    </section>
+
+
+{% endblock %}
+{% block scripts %}
+<script>
+const table=document.querySelector('table')
+const rows=table.querySelectorAll('td.row_number');
+let counter=1;
+for(const el of rows){
+    el.innerText=counter.toString();
+    counter++;
+}
+
+
+//////////////////////////////
+const students_to_delete=[];
+const scores_to_update={};
+const scores_table=document.getElementById('scores_to_update');
+const to_delete_table=document.getElementById('students_to_delete');
+function add_or_remove_students(student_id,el,std_name)
+{
+    if(students_to_delete.includes(student_id)){
+        const index=students_to_delete.indexOf(student_id);
+        students_to_delete.splice(index,1);el.innerText='حذف دانشجو';
+        for(const el of to_delete_table.querySelectorAll('tr')) {
+            if (el.id ==student_id) {
+                el.remove()
+                break;
+            }
+        }
+    }else{students_to_delete.push(student_id)
+    el.innerText=' لغو حذف دانشجو';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<tr><td>${std_name} </td></tr>`;
+    tr.id=student_id;
+    to_delete_table.appendChild(tr);
+    }
+}
+function update_score(input){
+    const id=input.getAttribute('data-id');
+    const value=parseFloat(input.value);
+    const initial_value=parseFloat(input.getAttribute('data-initial_value'))
+if(initial_value==value){
+    if(Object.keys(scores_to_update).includes(id))
+    {
+        delete scores_to_update[id];
+        for(const el of scores_table.querySelectorAll('tr')){
+         console.log(el.id,id,el.id==id)
+         if(el.id==id){
+             el.remove()
+             break;
+         }
+     }
+    }
+
+}
+else{
+    if(Object.keys(scores_to_update).includes(id))
+    {
+
+     for(const el of scores_table.querySelectorAll('tr')){
+         console.log(el.id,id,el.id==id)
+         if(el.id==id){
+             el.querySelectorAll('td')[1].innerText=value;
+             break;
+         }
+     }
+
+    }
+    else {
+        scores_to_update[id] = value;
+        const student_name = input.getAttribute('data-name');
+        const tr = document.createElement('tr');
+        tr.id = id;
+        tr.innerHTML = ` <td>${student_name}</td><td>${input.value}</td><td>${input.getAttribute('data-initial_value')}</td>`;
+        scores_table.appendChild(tr);
+    }
+}
+}
+
+
+
+///
+
+function submit_changes()
+{
+    console.log('to delete',students_to_delete,'to update',scores_to_update)
+const token=document.getElementsByName('csrfmiddlewaretoken')[0].value;
+fetch('{% url 'update_course_details' course.id %}',{headers:{'X-CSRFtoken':token},method:'POST',
+    body:JSON.stringify({'students_to_delete':students_to_delete,'scores_to_update':scores_to_update}),'Content-Type': 'application/json'}).then(res=>{console.log(res)}).catch(res=>{console.log(res)})
+
+}
+</script>
+{% endblock %}

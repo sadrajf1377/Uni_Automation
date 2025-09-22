@@ -1,0 +1,48 @@
+{% extends 'Base_Layout.html' %}
+{% block title %}
+دروس استاد
+{% endblock %}
+{% block dynamic_style %}
+<style>
+table{
+    height: fit-content;width: 80%;margin-left: 10%;margin-top:10vh;border: 2px solid black;
+}
+tr{
+    width: 100%;height: fit-content;display: flex;flex-direction: row-reverse;
+}
+td{
+    width: 25%;height: fit-content;font-size: calc(3vh);text-align: center;
+    color: black;border: 1px solid black;
+}
+td:nth-child(1n){background-color: lightgray}
+td:nth-child(2n){background-color: whitesmoke}
+</style>
+{% endblock %}
+
+
+{% block main_content %}
+<table>
+    <tr>
+        <td>نام درس</td>
+        <td>تعداد واحد</td>
+        <td>تعداد دانشجویان</td>
+        <td>ساعات برگزاری</td>
+    </tr>
+    {% for course in courses %}
+    <tr>
+      <td>
+          <a href="{% url 'view_course_details' course.id %}">{{ course.title }}</a></td>
+    <td>{{ course.credits }}</td>
+    <td>{{ course.students_count }}</td>
+    <td>
+        {% for time in course.times %}
+            {{ time.day }}
+            {{ time.time }}
+            <br>
+            {% endfor %}
+    </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

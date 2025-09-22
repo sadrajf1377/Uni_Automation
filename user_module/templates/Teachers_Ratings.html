@@ -1,0 +1,38 @@
+{% extends 'General_Table.html' %}
+
+
+{% block table_content %}
+    <tr>
+
+    <td>
+     مجموع نظرات
+    </td>
+    <td>
+        مرتبه علمی
+    </td>
+    <td>
+     نام استاد
+    </td>
+    <td>
+
+    </td>
+    </tr>
+{% for teacher in teachers %}
+    <tr>
+    <td>
+       {{ teacher.overall }}
+
+    <td>
+        {{ teacher.rank }}
+    </td>
+    <td>
+     {{ teacher.username }}
+    </td>
+    <td>
+
+    </td>
+    </tr>
+
+    {% endfor %}
+
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'Base_Layout.html' %}
+{% block title %} {{ title }} {% endblock %}
+{% block dynamic_style %}
+<style>
+form{
+    margin-top: 10vh;width: 40%;
+    margin-left: 30%;border-radius: 1.5%;border: none;
+    background-color: lightskyblue;
+   height: fit-content;position: relative;
+
+}
+form>section{
+    width:44%;margin-right:4%;height: fit-content;
+    float: right;text-align: center;display: none;
+}
+form>section:nth-child(2n){
+    clear: right;
+}
+form>section>input,textarea,select,option
+{
+    width: 44%;margin-right:4%;border: none;box-shadow: 1px 1px 1px gray;
+    border-radius: 1.5%;outline: none;height: 2vh;resize: none;
+}
+
+form>section>button{
+    border: none;background-color:lightgreen;color: whitesmoke;border-radius: 1.5%;
+    height: 3vh;width: 100%;font-size: 100%;
+}
+</style>
+
+{% endblock %}
+{% block main_content %}
+<form id="search_form">
+
+<select oninput="change_frm(this.value)">
+    نوع کاربر
+    <option selected>---</option>
+    <option value="teacher">استاد</option>
+    <option value="student">دانشجو</option>
+    <option value="employee">کارمند</option>
+</select>
+<section id="student"  data-view="view_student_profiles/">
+    {% for field in student_frm %}
+    {{ field.label }}
+        <br>
+        {{ field }}
+        <br>
+    {% endfor %}
+</section>
+<section id="teacher" data-view="view_teacher_profiles/">
+    {% for field in teacher_frm %}
+    {{ field.label }}
+        <br>
+        {{ field }}
+        <br>
+    {% endfor %}
+</section>
+<section id="employee" data-view="view_employee_profiles/">
+    {% for field in employee_frm %}
+    {{ field.label }}
+        <br>
+        {{ field }}
+        <br>
+    {% endfor %}
+</section>
+<button onclick="apply_filters()">
+    جست و جو
+</button>
+</form>
+
+{% endblock %}
+{% block scripts %}
+<script>
+let current_sec=null;
+const frm=document.getElementById('search_form');
+let section=null;
+function change_frm(val)
+{
+for(const sec of frm.querySelectorAll('section'))
+{
+    sec.style.display=sec.id==val?'block':'none';
+    if(sec.id==val){section=sec;}
+}
+
+}
+function apply_filters()
+{
+    if(section==null){
+        alert('نوع کاربر باید مشخص شود');
+        return;
+    }
+    let url=section.getAttribute('data-view');
+    const selects=section.querySelectorAll('select');
+    const count=selects.length;
+    for(let i=0;i<count;i++)
+    {
+
+        url+=selects[i].value+(i==count-1?'':'/');
+    }
+    console.log(url)
+    window.open(url);
+}
+</script>
+
+{% endblock %}

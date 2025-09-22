@@ -1,0 +1,91 @@
+{% extends 'Base_Layout.html' %}
+
+{% block title %}
+تیکت های من
+{% endblock %}
+
+{% block dynamic_style %}
+<style>
+form#ticket_form{
+    margin-top: 2vh;
+    text-align: center;
+height: fit-content;width: 80%;margin-left: 10%;border: none;border-radius: 1.5%;box-shadow: 1px 1px 1px lightgray;
+    font-size: calc(2vh);
+
+}
+form#ticket_form>input,select,option,textarea{
+    height: 1.5vh;border: none;outline: none;resize: none;box-shadow: 1px 1px 1px lightgray;
+    border-radius: 1.5%;
+}
+#tickets_container
+{
+    height: fit-content;width: 80%;margin-left: 10%;text-align: right;font-size: calc(2vh);
+    display: flex;flex-direction: column;margin-top: 3vh;
+}
+#tickets_container>div.ticket{
+    height: fit-content;width: 60%;margin-left: 20%;border-radius: 1.5%;box-shadow: 2px 2px 2px lightgray;
+    background-color: lightgray; color: black;text-align: center;margin-top: 1vh;
+}
+</style>
+
+{% endblock %}
+
+{% block main_content %}
+    <form id="ticket_form" >
+    {% csrf_token %}
+    ثبت تیکت جدید
+    <br>
+    {% for field in ticket_form %}
+    {{ field.label }}
+        <br>
+        {{ field }}
+        <br>
+
+    {% endfor %}
+    <button onclick="event.preventDefault();create_new_ticket()">
+        ثبت تیکت
+    </button>
+    </form>
+<section id="tickets_container">
+تیکت های من
+{% for ticket in tickets %}
+<div class="ticket">
+عنوان تیکت
+<br>
+{{ ticket.title }}
+<br>
+تاریخ ایجاد
+    <br>
+{{ ticket.date }}
+<br>
+تعداد پیام خوانده نشده
+<br>
+{{ ticket.unread_response }}
+<br>
+<a href="{% url 'ticket_messages' ticket.id  %}">پیام ها</a>
+</div>
+
+{% endfor %}
+</section>
+
+{% endblock %}
+{% block scripts %}
+<script>
+const ticket_form=document.getElementById('ticket_form');
+const csrf_token=ticket_form.querySelector('[name=csrfmiddlewaretoken]').value;
+function create_new_ticket()
+{
+    const form_data=new FormData(ticket_form);
+    fetch('{% url 'create_new_ticket' %}',{headers:{'X-csrftoken':csrf_token},body:form_data,method:"POST"}).then(res=>
+        {
+            switch (res.status){
+                case 201:{window.open(window.location)}break;
+                default:{const resp=JSON.parse(res.json()); console.log(resp)}break;
+            }
+        }
+
+    ).catch(res=>alert(res.status))
+}
+</script>
+
+{% endblock %}

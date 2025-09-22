@@ -1,0 +1,42 @@
+{% extends 'Base_Layout.html' %}
+{% block title %}
+مجوز های من
+{% endblock %}
+{% block dynamic_style %}
+<style>
+table{
+    height: fit-content;width: 60%;margin-left: 20%;border: none;box-shadow: 5px 5px 5px lightgray;
+
+}
+tr{
+    width: 100%;height: fit-content;
+}
+td{
+    width: 33.33%;height: fit-content;font-size: calc(2vh);border: 1px solid black; color: black;
+}
+td:nth-child(1n){background-color: white}
+td:nth-child(2n){background-color: lightgray}
+</style>
+{% endblock %}
+{% block main_content %}
+<table>
+<tr>
+    <td>
+        عنوان درخواست
+    </td>
+    <td>
+        نیمسال درخواست
+    </td>
+    <td>
+        تایید شده
+    </td>
+</tr>
+{% for per in permits %}
+<tr>
+<td>{{ per.permit_type }}</td>
+<td>{{ per.semester }}</td>
+<td><input type="checkbox" {% if per.is_confirmed %}checked{% endif %}></td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}

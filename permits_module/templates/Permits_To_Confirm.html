@@ -1,0 +1,19 @@
+{% extends 'General_Table.html' %}
+{% block table_content %}
+<tr>
+<td>کاربر درخواست دهنده</td>
+<td>تاریخ درخواست</td>
+<td>نوع مجوز</td>
+<td></td>
+</tr>
+{% for permit in permits %}
+    <tr>
+    <td>{{ permit.creator_name }}</td>
+    <td>{{ permit.date }}</td>
+    <td>{{ permit.permit_type }}</td>
+    <td></td>
+
+    </tr>
+
+    {% endfor %}
+{% endblock %}

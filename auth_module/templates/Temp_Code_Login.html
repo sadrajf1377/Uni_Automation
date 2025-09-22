@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+       body{background-color: dodgerblue}
+        form#Login_form{
+            height: fit-content;width: 20vw;position: fixed;left: 40vw;top: 10vh;
+            border: whitesmoke 2px solid;border-radius: 2%;
+            box-shadow: 5px 5px 5px whitesmoke;text-align: center;color: whitesmoke;align-content: center;
+        }
+        #Login_form>input{
+            width: 50%;margin-left: 25%;height: 4vh;border-radius: 1.5%;border: 1px solid black;
+            margin-top: 1vh;
+        }
+        #Login_form>button
+        {
+            width: 40%;height: fit-content;font-size: calc(4vh);margin-right:1vw;margin-top: 1vh;
+        }
+        #Login_form>p{color: whitesmoke;font-size: calc(3.5vh);text-align: center}
+
+    </style>
+</head>
+<body>
+<form id="Login_form" action="{% url 'login_with_temp_code' %}" method="post">
+{% csrf_token %}
+   {% for field in tmp_form %}
+       {% if not field.is_hidden %}
+    {{ field.label }}
+       <br>
+       {{ field }}
+         <br>
+           {{ field.errors }}
+        <br>
+       {% endif %}
+    {% endfor %}
+
+    <div style="display: flex;flex-direction: row;margin-top: 1vh">
+    <button id="resend_button" onclick="ask_for_temp_password()">
+        تولید رمز عبور جدید
+    </button>
+    <button >
+        ورود
+    </button>
+        </div>
+</form>
+<script>
+function ask_for_temp_password()
+{
+    fetch('{% url 'temp_pass' %}',{}).then(res=>res.json()).then(res=>{
+        alert('رمز موقت جدید به ایمیل شما ارسال شد')
+    }).catch(res=>{alert(res.message)})
+}
+</script>
+</body>
+</html>

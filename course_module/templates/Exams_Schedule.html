@@ -1,0 +1,53 @@
+{% extends 'Base_Layout.html' %}
+{% block title %}
+برنامه امتحانی
+{% endblock %}
+{% block dynamic_style %}
+<style>
+table{
+    height: fit-content;width: 50vw;margin-left: 25vw;margin-top: 3vh;border: 1px solid black;
+}
+tr{width: 100%;height: fit-content}
+td{
+    height: fit-content;font-size: calc(2vh);border: 0.5px solid black;text-align: center;
+    color: black;width: 30%;
+}
+td:last-child{width: 10%}
+td:nth-child(1n){background-color: whitesmoke}
+td:nth-child(2n){background-color: lightgray}
+</style>
+{% endblock %}
+
+{% block main_content %}
+<table>
+<tr>
+
+
+    <td>روز</td>
+    <td>ساعت امتحان</td>
+     <td>نام درس</td>
+      <td></td>
+
+</tr>
+{% for course in courses %}
+<tr class="exam_rows">
+
+
+<td>{{ course.exam_time.day }}</td>
+<td>{{ course.exam_time.time }}</td>
+    <td>{{ course.title }}</td>
+<td class="row_number"></td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}
+{% block scripts %}
+<script>
+let counter=1;
+const rows=document.getElementsByClassName('exam_rows')
+for (const row of rows){
+    row.querySelector('td.row_number').innerHTML=counter.toString();
+    counter++;
+}
+</script>
+{% endblock %}

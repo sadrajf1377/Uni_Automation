@@ -1,0 +1,12 @@
+body{
+    display: flex;flex-direction: column;background-color: deepskyblue;
+}
+#head
+{
+    width: 100vw;height: fit-content;background-color: lightblue;border-radius: 1.5%;margin-top: 0vh;font-size: calc(2vh);
+    display: flex;flex-direction: row;
+}
+#head>.clickable{
+    width: 15%;height: fit-content;color: whitesmoke;border-radius: 30%;background-color: blue;color: whitesmoke;
+    font-size: calc(2vh);box-shadow: 5px 5px 5px whitesmoke;
+}
