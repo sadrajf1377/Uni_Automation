@@ -6,7 +6,7 @@ from Uni_Automation import settings
 
 @shared_task
 def send_emails(template_name,subject,to,context):
-    tags=striptags(template_name,context)
-    message=render_to_string(tags)
+    tags=striptags(template_name)
+    message=render_to_string(tags,context)
     from_email=settings.EMAIL_HOST_USER
     send_mail(html_message=message,message=tags,from_email=from_email,recipient_list=[to],subject=subject)

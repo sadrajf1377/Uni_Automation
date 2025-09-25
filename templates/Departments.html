@@ -1,0 +1,28 @@
+{% extends 'General_Table.html' %}
+
+{% block table_content %}
+<tr>
+<td>
+    تعداد دروس
+</td>
+    <td>میانگین نمرات</td>
+<td>تعداد دانشجویان</td>
+<td>تعداد اساتید</td>
+<td>نام دپارتمان</td>
+<td></td>
+</tr>
+{% for department in departments %}
+    <tr>
+<td>
+    {{ department.courses }}
+</td>
+        <td>
+            {{ department.avg }}
+        </td>
+<td>{{ department.students }}</td>
+<td>{{ department.teachers }}</td>
+<td>{{ department.dep}}</td>
+<td></td>
+</tr>
+    {% endfor %}
+{% endblock %}

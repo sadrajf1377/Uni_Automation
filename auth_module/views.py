@@ -1,4 +1,5 @@
 import datetime
+import json
 
 import redis
 from django.contrib.auth import login, logout
@@ -24,11 +25,13 @@ class Login(View):
             try:
                 user=User.objects.get(national_number=nat_number)
                 if user.check_password(password):
-                    code=get_random_string(length=15)
-                    red=redis.StrictRedis('redis://redis:6379/1')
-                    red.hset('temp_codes',nat_number,code,exp=60*2)
-                    send_emails.delay(template_name='Temp_Code_Email.html',context={'code':code},to=user.email,subject='رمز ورود یکبار مصفرف')
-                    return render(request,'Temp_Code_Login.html',context={'tmp_form':Temp_Code_Login_Form(initial={'nat_number':nat_number})},status=200)
+                    code1=get_random_string(length=15)
+                    red=redis.from_url('redis://redis:6379/1', decode_responses=True)
+                    red.set(nat_number,code1)
+                    red.expire(nat_number,60*5)
+                    send_emails.delay(template_name='Temp_Code_Email.html',context={'code':code1},to=user.email,subject='رمز ورود یکبار مصفرف')
+                    frm=Temp_Code_Login_Form(initial={'nat_number':nat_number})
+                    return render(request,'Temp_Code_Login.html',context={'tmp_form':frm},status=200)
                 else:
                     frm.add_error('password','کاربری با این مشخصات یافت نشد!')
                     return render(request, 'Login.html', context={'login_form':frm},status=404)
@@ -36,6 +39,7 @@ class Login(View):
                 frm.add_error('password', 'کاربری با این مشخصات یافت نشد!')
                 return render(request, 'Login.html', context={'login_form': frm},status=404)
             except Exception as e:
+                print(e)
                 frm.add_error('password','مشکلی در هنگا پردازش درخواست شما به وجود آمد!لطفا مجدد تلاش بفرمایید')
                 return render(request, 'Login.html', context={'login_form': frm}, status=500)
         else:
@@ -45,7 +49,7 @@ class Login(View):
 class Generate_New_Temp_Code(View):
     def post(self,request):
             nat_number=request.POST.get('nat_number')
-            red=redis.StrictRedis('redis://redis:6379/1')
+            red=redis.from_url('redis://redis:6379/1', decode_responses=True)
             dic = red.hget('temp_codes')[nat_number] or None
             if dic:
                 return JsonResponse(data={'message':'رمز موقت قبلی هنوز برای شما معتبر است،تا زمان منقضی شدن رمز قبلی،امکان تولید رمز جدید وجود ندارد.عمر هر رمز:2 دقیقه'})
@@ -70,13 +74,16 @@ class Login_With_Temp_Code(View):
         if frm.is_valid():
             temp_code = frm.cleaned_data.get('temp_code')
             nat_number = frm.cleaned_data.get('nat_number')
-            red=redis.StrictRedis('redis://redis:6379/1')
-            code = red.hget('temp_codes')[nat_number]['code'] or None
-            if code and temp_code == code:
-                login(user=request.user, request=request)
+            red=redis.from_url('redis://redis:6379/1',decode_responses=True)
+
+            code1 = red.get(nat_number) or None
+            print(code1)
+            if code1 and temp_code == code1:
+                user=User.objects.get(national_number=nat_number)
+                login(user=user, request=request)
                 return redirect(reverse('index'))
             else:
-                frm.add_error('temp_code', 'کد وارد شده معتبر نمی باشد!')
+                frm.add_error('temp_code', 'کد وارد شده معتبر نمی باشد!'+str(code1)+'  ,temp='+str(temp_code))
                 return render(request, 'Temp_Code_Login.html',
                                   context={'tmp_form':frm},
                                   status=401)
@@ -91,12 +98,15 @@ class Signup(View):
     def post(self,request):
         frm=Signup_Form(request.POST)
         if frm.is_valid():
-            red=redis.StrictRedis('redis://redis:6379/1')
+            print(json.dumps(frm.cleaned_data))
+            red=redis.from_url('redis://redis:6379/1', decode_responses=True)
             code=get_random_string(length=64)
             data=frm.cleaned_data
             data['password']=make_password(data.get('password'))
             del data['password_repeat']
-            red.hset('temp_users',code,data,exp=60*15)
+            print(data)
+            red.set(code,json.dumps(data))
+            red.expire(code,60*15)
             send_emails.delay(subject='فعالسازی حساب',template_name='Account_Activation_Email.html',context={'act_code':code},to=data.get('email'))
             return render(request,'Dynamic_Message.html',context={'message':'برای فعالسازی حساب خود،به ایمیلی که وارد کردید مراجعه فرمایید!'},status=201)
         else:
@@ -106,12 +116,13 @@ class Signup(View):
 class Activate_Account(View):
     def get(self,request,act_code):
         try:
-            red=redis.StrictRedis('redis://redis:6379/1')
-            data = redis.hget('temp_users')[act_code]
+            red=redis.from_url('redis://redis:6379/1', decode_responses=True)
+            data =json.loads(red.get(act_code))
+            data['password_repeat']=data['password']
             frm = Signup_Form(data=data)
             if frm.is_valid():
                 frm.save()
-                red.hdel(act_code)
+                red.delete(act_code)
                 return render(request, 'Dynamic_Message.html', context={'message': 'حساب شما با موفقیت فعال شد'},
                               status=201)
             else:

@@ -1,4 +1,6 @@
-from django.db.models import Q, Count, F
+from django.db.models import Q, Count, F, OuterRef, Subquery, Window, Case, When, Value, CharField, ExpressionWrapper, \
+    Sum
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from django.urls import reverse, reverse_lazy
@@ -159,3 +161,14 @@ class Approve_User(View):
         except Exception as e:
             return render(request, 'Dynamic_Message.html',
                           context={'message': 'مشکلی در پردازش درخواست شما به وجود آمد'}, status=500)
+
+class Departments_List(View):
+    def get(self,request):
+        cases=Case(When(user_type='دانشجو',then=F('student_profile__department')),
+                   When(user_type='استاد',then=F('teacher_profile__department')),
+                   When(user_type='کارمند یا کارشناس',then=F('employee_profile__department')),output_field=CharField())
+        s=User.objects.all().annotate(dep=cases).values('dep').annotate(students=Count('student_profile',distinct=True)
+                                                                        ,teachers=Count('teacher_profile',distinct=True),employees=Count('employee_profile',distinct=True),courses=Count('teacher_courses'),
+                                                                        avg=Sum(F('scores__score')*F('scores__course__credits'))/Sum('scores__course__credits'))
+        print(s)
+        return render(request,'Departments.html',context={'departments':s},status=201)

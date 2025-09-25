@@ -29,11 +29,12 @@
        {% if not field.is_hidden %}
     {{ field.label }}
        <br>
+           {% endif %}
        {{ field }}
          <br>
            {{ field.errors }}
         <br>
-       {% endif %}
+
     {% endfor %}
 
     <div style="display: flex;flex-direction: row;margin-top: 1vh">
@@ -48,7 +49,7 @@
 <script>
 function ask_for_temp_password()
 {
-    fetch('{% url 'temp_pass' %}',{}).then(res=>res.json()).then(res=>{
+    fetch('{% url 'ask_for_temp_pass' %}',{}).then(res=>res.json()).then(res=>{
         alert('رمز موقت جدید به ایمیل شما ارسال شد')
     }).catch(res=>{alert(res.message)})
 }

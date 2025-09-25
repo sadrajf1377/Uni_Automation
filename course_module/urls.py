@@ -12,6 +12,7 @@ urlpatterns=[
     path('update_course_details/<course_id>',Update_Courses_Details.as_view(),name='update_course_details'),
     path('pick_course/<course_id>',Pick_Courses.as_view(),name='pick_course'),
     path('delete_course/<course_id>',Delete_Course.as_view(),name='delete_course'),
-    path('exams_shecduele',Student_Exams.as_view(),name='exams_schedule')
+    path('exams_shecduele',Student_Exams.as_view(),name='exams_schedule'),
+    path('top_students',Top_Students.as_view(),name='top_students')
 
 ]

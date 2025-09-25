@@ -2,7 +2,8 @@ import json
 
 import redis
 from django.db.models import OuterRef, Prefetch, Subquery, Avg, ExpressionWrapper, F, FloatField, Q, Sum, IntegerField, \
-    Case, When, Value, CharField, Count
+    Case, When, Value, CharField, Count, Window
+from django.db.models.functions import Rank
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
@@ -11,7 +12,7 @@ from django.views import View
 from django.views.generic import ListView, CreateView
 
 from semester_module.models import Semester
-from user_module.models import User
+from user_module.models import User,General_Profile
 from .models import Course,Course_Score,Class_Times
 from semester_module.models import Current_Semester
 from .forms import Course_Filter_Form
@@ -279,8 +280,16 @@ class Student_Exams(ListView):
 
 
 
-
-
+class Top_Students(View):
+    def get(self,request):
+        query=list(User.objects.filter(user_type='دانشجو').select_related('student_profile').prefetch_related('scores').annotate(
+            dep=F('student_profile__department'),avg=Sum(F('scores__score')*F('scores__course__credits'))/Sum('scores__course__credits')).annotate(
+            dep_rank=Window(expression=Rank(),partition_by=F('dep'),order_by=F('avg').desc())
+        ).filter(dep_rank__lte=3))
+        deps=[x[0] for x in General_Profile.department_choices]
+        result={dep:[x for x in query if x.dep==dep] for dep in deps}
+        print(result)
+        return JsonResponse(data={})
 
 
 
