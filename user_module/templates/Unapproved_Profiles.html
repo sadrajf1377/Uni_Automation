@@ -2,13 +2,16 @@
 
 {% block table_content %}
 <tr>
+<td>مشاهده پروفایل</td>
 <td>تاریخ ثبت نام</td>
 <td>نوع کاربر</td>
 <td>نام کاربر</td>
+
 <td></td>
 </tr>
 {% for user in users %}
     <tr>
+    <td>{% url 'approve_user' user.profile_id user.user_type %}</td>
     <td>{{ user.date_joined }}</td>
     <td>{{ user.user_type }}</td>
     <td>{{ user.username }}</td>

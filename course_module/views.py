@@ -195,6 +195,20 @@ class Update_Courses_Details(View):
             return render(request,'Dynamic_Message.html',context={'message':'مشکلی در پردازش درخواست شما به وجود آمد!لطفا مجدد تلاش بفرمایید'},status=500)
 
 
+class Delete_Course_Students(View):
+    def post(self,request,course_id):
+        data=json.loads(request.body)
+        ids=data['students_ids']
+        course=get_object_or_404(Course,id=course_id,teacher=request.user)
+        students=course.students.filter(id_in=data['students_ids'])
+        if len(students)!=ids:
+            return JsonResponse(data={'message':'برخی از دانشجو های مشخص شده در لیست دانشجویان این درس نیستند!'})
+        course.students.remove(students)
+        course.changes_history['students_removed']=students.values_list('username',flat=True)
+        course.save()
+        return JsonResponse(data={'message':'دانشجویان با موفقیت حذف شدند!'})
+
+
 @method_decorator(check_semester_status(status_permits_pair={'انتخاب واحد':'انتخاب واحد','جاری':'انتخاب واحد خارج از بازه'},response_type='html'),name='dispatch')
 class Pick_Courses(View):
     def post(self,request,course_id):

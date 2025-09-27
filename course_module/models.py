@@ -45,6 +45,7 @@ class Course(models.Model):
     class_times=models.ManyToManyField(Class_Times,related_name='classes',blank=True,verbose_name='زمان های برگزاری کلاس')
     requirements=models.ManyToManyField('Course',verbose_name='پیش نیاز ها',blank=True)
     exam_time=models.DateTimeField(verbose_name='زمان امتحان',null=True,blank=True)
+    changes_history=models.JSONField(verbose_name='تاریخچه تغییرات درس',null=True,blank=True)
     def save(self,*args):
         super().save(*args)
     def __str__(self):
