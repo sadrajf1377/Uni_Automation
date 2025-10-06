@@ -10,6 +10,6 @@ class Course_Filter_Form(forms.Form):
 class Appeal_Form(forms.ModelForm):
     class Meta:
         model=Score_Appeal
-        fields=['score','text']
+        fields=['text']
         labels={'text':'متن اعتراض'}
-        widgets={'text':forms.Textarea(),'score':forms.HiddenInput()}
+        widgets={'text':forms.Textarea()}

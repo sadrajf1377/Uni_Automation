@@ -339,9 +339,9 @@ class Submit_Score_Appeal(View):
     def post(self,request,course_id):
         try:
             score=request.user.scores.get(course_id=course_id)
-            appeal,ap=Score_Appeal.objects.get_or_create(score_id=score.id)
-            frm=Appeal_Form(instance=appeal,data=request.post)
+            frm=Appeal_Form(data=request.post)
             if frm.is_valid():
+                frm.instance.score=score
                 frm.save()
                 return JsonResponse(data={'message':'اعتراض با موفقیت ثبت شد!'},status=201)
             else:
