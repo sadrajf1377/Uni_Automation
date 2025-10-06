@@ -29,5 +29,6 @@ urlpatterns = [
     path('review/',include('review_module.urls')),
     path('user_module/',include('user_module.urls')),
     path('ticket_module/',include('ticket_module.urls')),
-    path('auth/',include('auth_module.urls'))
-]+static(settings.MEDIA_URL,root=settings.MEDIA_ROOT)
+    path('auth/',include('auth_module.urls')),
+    path('exam_module/',include('exam_module.urls'))
+]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

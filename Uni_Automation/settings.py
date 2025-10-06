@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'polls',
     'redis',
     'review_module',
-    'ticket_module'
+    'ticket_module',
+    'exam_module'
 
 
 
@@ -144,8 +145,8 @@ USE_TZ = True
 EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS=True
 EMAIL_HOST='smtp.gmail.com'
-EMAIL_HOST_USER='sadrodinjafari77@gmail.com'
-EMAIL_HOST_PASSWORD='swqj jvxw rqsb kxcq'
+EMAIL_HOST_USER='your email adders'
+EMAIL_HOST_PASSWORD='your email host password'
 EMAIL_PORT=587
 
 ########################################

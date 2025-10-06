@@ -1,0 +1,43 @@
+{% extends 'Base_Layout.html' %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block dynamic_style %}
+<style>
+form{
+    height: fit-content;width: 60%;margin-left: 20%;border: none;border-radius: 1.5%;box-shadow: 5px 5px 5px lightgray;
+    font-size: calc(2vh);text-align: center;
+}
+form>input,textarea,button
+{
+    width: 40%;height: fit-content;margin-left: 30%;border: none;outline: none;resize: none;
+    background-color: transparent;box-shadow: inset 0 0 5px lightgray;color: black;
+}
+</style>
+
+{% endblock %}
+
+
+{% block main_content %}
+    <p style="text-align: center;font-size: calc(2vh)">
+    ثبت پاسخ برای درس {{ course_name }}
+    </p>
+<form action="{% url 'submit_exam_answer' course_id %}" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+{% for field in form %}
+{{ field.label }}
+    <br>
+    {{ field }}
+    <br>
+    <p style="color:red;">
+    {{ field.errors }}
+    </p>
+{% endfor %}
+<button>
+    ثبت پاسخ
+</button>
+</form>
+
+{% endblock %}

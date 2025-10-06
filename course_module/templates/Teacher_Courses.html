@@ -23,6 +23,8 @@ td:nth-child(2n){background-color: whitesmoke}
 {% block main_content %}
 <table>
     <tr>
+        <td>امتحان مجازی</td>
+        <td>پاسخ های دانشجویان</td>
         <td>نام درس</td>
         <td>تعداد واحد</td>
         <td>تعداد دانشجویان</td>
@@ -30,6 +32,18 @@ td:nth-child(2n){background-color: whitesmoke}
     </tr>
     {% for course in courses %}
     <tr>
+    <td>
+        {% if not course.has_exam %}
+            <a href="{% url 'create_exam' course.id %}">ایجاد امتحان</a>
+        {% else %}
+            <a href="{% url 'update_exam' course.id %}">ویرایش امتحان</a>
+        {% endif %}
+    </td>
+    <td>
+        <a href="{% url 'students_answers' course.id %}">
+            مشاهده پاسخ ها
+        </a>
+    </td>
       <td>
           <a href="{% url 'view_course_details' course.id %}">{{ course.title }}</a></td>
     <td>{{ course.credits }}</td>

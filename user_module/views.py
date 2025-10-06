@@ -107,7 +107,7 @@ class UnApproved_Students(UnApproved_Users):
         department=self.kwargs['department']
         degree=self.kwargs['degree']
         query=super().get_queryset().filter(user_type='دانشجو').select_related('student_profile').filter(student_profile__is_approved=False,student_profile__department=department
-                                                                              ,student_profile__degree=degree).annotate(profile_id=F('student_profile_id'))
+                                                                              ,student_profile__degree=degree).annotate(profile_id=F('student_profile__id'))
         return query
 
 class UnApproved_Teachers(UnApproved_Users):
@@ -117,7 +117,7 @@ class UnApproved_Teachers(UnApproved_Users):
         rank=self.kwargs['rank']
 
         query=super().get_queryset().filter(user_type='استاد').select_related('teacher_profile').filter(teacher_profile__is_approved=False,teacher_profile__department=department
-                                                                                                          ,teacher_profile__rank=rank).annotate(profile_id=F('teacher_profile_id'))
+                                                                                                          ,teacher_profile__rank=rank).annotate(profile_id=F('teacher_profile__id'))
         return query
 
 class UnApproved_Employees(UnApproved_Users):
@@ -125,7 +125,7 @@ class UnApproved_Employees(UnApproved_Users):
         #'role', 'latest_degree_code'
         role=self.kwargs['role']
         query=super().get_queryset().filter(user_type='کارمند یا کارشناس').select_related('employee_profile').filter(employee_profile__is_approved=False,
-                                                                                    employee_profile__role=role).annotate(profile_id=F('employee_profile_id'))
+                                                                                    employee_profile__role=role).annotate(profile_id=F('employee_profile__id'))
         return query
 
 

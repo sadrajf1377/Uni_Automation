@@ -1,0 +1,43 @@
+{% extends 'Base_Layout.html' %}
+
+{% block title %}
+    {% if to_do == 'create' %}
+       ایجاد امتحان برای درس {{ course_name }}
+        {% else %}
+        ویرایش امتحان درس {{ course_name }}
+    {% endif %}
+
+{% endblock %}
+
+
+{% block dynamic_style %}
+<style>
+form{
+    height: fit-content;width: 60%;margin-left: 20%;margin-top: 2vh;border-radius: 1.5%;border: none;
+    text-align: center;font-size: calc(2vh);display: flex;flex-direction: column;
+}
+form>input,button,textarea,option,select,textarea{
+    width: 20%;height: fit-content;border-radius: 5%;box-shadow: 5px 5px 5px lightgray;border: none;margin-left: 40%;
+}
+</style>
+{% endblock %}
+
+{% block main_content %}
+<form action="{% if to_do == 'create' %} {% url 'create_exam' course_id %}   {% else %} {% url 'update_exam' course_id %} {% endif %}" method="post">
+{% csrf_token %}
+{% for field in form %}
+{{ field.label }}
+    <br>
+    {{ field }}
+    <p style="color: red">
+    {{ field.errors }}
+    </p>
+
+{% endfor %}
+<button>
+    ثبت امتحان
+</button>
+</form>
+
+
+{% endblock %}

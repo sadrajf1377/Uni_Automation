@@ -1,0 +1,30 @@
+{% extends 'General_Table.html' %}
+
+{% block table_content %}
+<tr>
+
+<td>پاسخ</td>
+<td>تاریخ امتحان</td>
+<td>مدت امتحان</td>
+<td>نام درس</td>
+<td></td>
+</tr>
+{% for course in courses %}
+    <tr>
+    <td>
+         <a href="{% url 'submit_exam_answer' course.id %}">
+        {% if course.has_answer %}
+            ویرایش پاسخ
+        {% else %}
+            ثبت پاسخ
+        {% endif %}
+         </a>
+    </td>
+    <td>{{ course.exam_date }}</td>
+    <td>{{ course.duration }}</td>
+    <td>{{ course.title }}</td>
+    <td></td>
+    </tr>
+
+    {% endfor %}
+{% endblock %}

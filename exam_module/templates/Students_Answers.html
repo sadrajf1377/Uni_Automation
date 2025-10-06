@@ -1,0 +1,27 @@
+{% extends 'General_Table.html' %}
+
+
+{% block table_content %}
+<tr>
+<td>فایل پاسخنامه</td>
+<td>توضیحات پاسخنامه</td>
+<td>نام دانشجو</td>
+<td></td>
+</tr>
+
+    {% for student in students %}
+    <tr>
+
+<td>
+   {% for answer in student.answer %} <iframe height="100" width="100" href="{{ answer.file.url }}" target="_blank">نمایش فایل PDF</iframe> {% endfor %}
+</td>
+<td>
+{% for answer in student.answer %} {{ answer.description }} {% endfor %}
+</td>
+
+<td>{{ student.username }}</td>
+    <td></td>
+    </tr>
+
+    {% endfor %}
+{% endblock %}

@@ -2,7 +2,7 @@ import json
 
 import redis
 from django.db.models import OuterRef, Prefetch, Subquery, Avg, ExpressionWrapper, F, FloatField, Q, Sum, IntegerField, \
-    Case, When, Value, CharField, Count, Window
+    Case, When, Value, CharField, Count, Window, Exists
 from django.db.models.functions import Rank
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -13,11 +13,12 @@ from django.views.generic import ListView, CreateView
 
 from semester_module.models import Semester
 from user_module.models import User,General_Profile
-from .models import Course,Course_Score,Class_Times
+from .models import Course,Course_Score,Class_Times,Score_Appeal
 from semester_module.models import Current_Semester
-from .forms import Course_Filter_Form
+from .forms import Course_Filter_Form,Appeal_Form
 from utils.decorators import restrict_view_access
 from utils.decorators import check_semester_status
+from exam_module.models import Exam
 # Create your views here.
 ##this section belongs to students views
 
@@ -59,10 +60,14 @@ class Total_Report_Card(View_Courses_Reports):
 
 
 class View_Semester_Report(View_Courses_Reports):
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context=super().get_context_data()
+        context['appeal_form']=Appeal_Form()
+        return context
     def get_queryset(self):
-        print(self.request.session['semester'])
         current_semester=self.request.session.get('semester') or Current_Semester.objects.all()[0].id
-        query=super().get_queryset().filter(id=current_semester)
+        has_appeal=Score_Appeal.objects.select_related('score').filter(score__course_id=OuterRef('pk'))
+        query=super().get_queryset().filter(id=current_semester).annotate(has_appeal=Exists(has_appeal))
         return query
 
 
@@ -143,9 +148,10 @@ class Teacher_Courses(ListView):
     ordering = '?'
     def get_queryset(self):
         user=self.request.user
+        has_exam=Exam.objects.filter(course_id=OuterRef('pk'))
         current_sem_id=self.request.session.get('semester') or Current_Semester.objects.all()[0].id
         query=user.teacher_courses.all().filter(semester_id=current_sem_id).prefetch_related('students').annotate(students_count=Count('students')
-                                                                                                                  ).prefetch_related(Prefetch('class_times',queryset=Class_Times.objects.all(),to_attr='times'))
+                                                                                                                  ,has_exam=Exists(has_exam)).prefetch_related(Prefetch('class_times',queryset=Class_Times.objects.all(),to_attr='times'))
         print(query)
         return query
 
@@ -207,6 +213,29 @@ class Delete_Course_Students(View):
         course.changes_history['students_removed']=students.values_list('username',flat=True)
         course.save()
         return JsonResponse(data={'message':'دانشجویان با موفقیت حذف شدند!'})
+
+
+class Submite_Students_Scores(View):
+    def post(self,request,course_id):
+        try:
+            data = json.loads(request.body)
+            students_scores = data['students_scores']
+            course = request.user.teacher_courses.get(id=course_id)
+            scores = course.scores.filter(student_id__in=students_scores.keys())
+            if len(scores) != len(students_scores.keys()):
+                return JsonResponse(data={'message': 'تعدادی از دانشجویان وارد شده یافت نشدند'}, status=401)
+            scores_to_update = []
+            for sc in scores:
+                sc.score = students_scores[sc.student_id]
+                students_scores.append(sc)
+            Course_Score.objects.bulk_update(scores_to_update, fields=['score'])
+            return JsonResponse(data={'message': 'نمرات با موفقیت تغییر کردند'},status=201)
+        except Course.DoesNotExist:
+            return JsonResponse(data={'message':'درسی با مشخصات وارد شده یافت نشد'},status=404)
+        except KeyError:
+            return JsonResponse(data={'message':'داده به صورت صحیح وارد نشده است!'},status=402)
+        except:
+            return JsonResponse(data={'message':'مشکلی در پردازش درخواست به وجود آمد!لطفا مجدد تلاش بفرمایید!'},status=500)
 
 
 @method_decorator(check_semester_status(status_permits_pair={'انتخاب واحد':'انتخاب واحد','جاری':'انتخاب واحد خارج از بازه'},response_type='html'),name='dispatch')
@@ -306,4 +335,19 @@ class Top_Students(View):
         return JsonResponse(data={})
 
 
-
+class Submit_Score_Appeal(View):
+    def post(self,request,course_id):
+        try:
+            score=request.user.scores.get(course_id=course_id)
+            appeal,ap=Score_Appeal.objects.get_or_create(score_id=score.id)
+            frm=Appeal_Form(instance=appeal,data=request.post)
+            if frm.is_valid():
+                frm.save()
+                return JsonResponse(data={'message':'اعتراض با موفقیت ثبت شد!'},status=201)
+            else:
+                errors='\n'.join([x for x in frm.errors])
+                return JsonResponse(data={'message':'مشکلی در ثبت اعتراض به وجود آمد!لطفا مجددا تلاش بفرمایید!','errros':errors},status=401)
+        except Course_Score.DoesNotExist:
+            return JsonResponse(data={'message':'نمره ای برای ثبت اعتراض پیدا نشد'},status=404)
+        except:
+            return JsonResponse(data={'message':'مشکلی در پردازش شاما به وجود آمد!لطفا مجددا تلاش بفرمایید!'},status=500)

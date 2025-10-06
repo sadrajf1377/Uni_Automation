@@ -10,11 +10,13 @@ def restrict_view_access(profile_types,roles='all'):
     def wrapper(func):
         def to_do(*args,**kwargs):
             user=args[0].user
+
             cond=Q(user_id=user.id,is_approved=True)
             if roles!='all':
                 cond&=Q(role__in=roles)
             for prof in profile_types:
                 if profiles[prof].objects.filter(cond).exists():
+
                      return func(*args,**kwargs)
             return HttpResponse(
                 f'کاربر گرامی،شما مجاز به انجام چنین عملیاتی نمی باشید،برای انجام این عملیات شما باید یکی از نقش های '
