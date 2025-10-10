@@ -1,6 +1,7 @@
 import json
 
 import redis
+from django.db import IntegrityError
 from django.db.models import OuterRef, Prefetch, Subquery, Avg, ExpressionWrapper, F, FloatField, Q, Sum, IntegerField, \
     Case, When, Value, CharField, Count, Window, Exists
 from django.db.models.functions import Rank
@@ -24,7 +25,7 @@ from exam_module.models import Exam
 
 from django.core.cache import caches
 class View_Courses_Reports(ListView):
-    template_name = 'test.html'
+    template_name = 'Scores_Report.html'
     model = Semester
     context_object_name = 'semesters'
     ordering = 'start_date'
@@ -34,16 +35,17 @@ class View_Courses_Reports(ListView):
     def get_queryset(self):
         user=self.request.user
         score_subquery=Course_Score.objects.filter(student_id=user.id,course_id=OuterRef('pk')).values('score')[:1:]
+        appeal_text=Score_Appeal.objects.select_related('score').filter(score__student=user,score__course_id=OuterRef('pk')).values_list('text',flat=True)[:1:]
         pass_status=Case(When(score__gte=10,then=Value('قبول')),When(score__lt=10,then=Value('مردود')),output_field=CharField())
         semesters=Semester.objects.filter(semester_courses__students=user).prefetch_related(
             Prefetch('semester_courses',queryset=Course.objects.prefetch_related('scores').filter(
-                students=user).annotate(score=Subquery(score_subquery)).annotate(pass_status=pass_status),
+                students=user).annotate(score=Subquery(score_subquery)).annotate(pass_status=pass_status,appeal_text=Subquery(appeal_text)),
                      to_attr='sem_courses')
         ).annotate(total_scores=Sum(ExpressionWrapper(F('semester_courses__scores__score')*F('semester_courses__credits'),output_field=FloatField())
                                     ,filter=Q(semester_courses__scores__student=user)
                                     ),
                    ).annotate(total_credits=Sum('semester_courses__credits',filter=Q(semester_courses__scores__student=user)))\
-            .annotate(sem_average=ExpressionWrapper(F('total_scores')/F('total_credits'),output_field=FloatField()))\
+            .annotate(sem_average=ExpressionWrapper(F('total_scores')/F('total_credits'),output_field=FloatField()))
 
         st=semesters.aggregate(total_avg=Sum('sem_average'),total_count=Count('id'))
         print('st',st)
@@ -183,7 +185,7 @@ class Update_Courses_Details(View):
             data = json.loads(request.body.decode('utf-8'))
             students_to_delete =data.get('students_to_delete')
             scores_to_update ={int(key):float(value) for key,value in  data.get('scores_to_update').items()}
-            scores = course.scores.all().filter(student_id__in=scores_to_update.keys())
+            scores = course.scores.all().filter(student_id__in=scores_to_update.keys()).select_for_update()
             to_update = []
             print(scores_to_update)
             for sc in scores:
@@ -335,11 +337,12 @@ class Top_Students(View):
         return JsonResponse(data={})
 
 
+@method_decorator(restrict_view_access(profile_types=['student']),name='dispatch')
 class Submit_Score_Appeal(View):
     def post(self,request,course_id):
         try:
             score=request.user.scores.get(course_id=course_id)
-            frm=Appeal_Form(data=request.post)
+            frm=Appeal_Form(data=request.POST)
             if frm.is_valid():
                 frm.instance.score=score
                 frm.save()
@@ -349,5 +352,6 @@ class Submit_Score_Appeal(View):
                 return JsonResponse(data={'message':'مشکلی در ثبت اعتراض به وجود آمد!لطفا مجددا تلاش بفرمایید!','errros':errors},status=401)
         except Course_Score.DoesNotExist:
             return JsonResponse(data={'message':'نمره ای برای ثبت اعتراض پیدا نشد'},status=404)
-        except:
+        except IntegrityError as e:
+            print(e)
             return JsonResponse(data={'message':'مشکلی در پردازش شاما به وجود آمد!لطفا مجددا تلاش بفرمایید!'},status=500)

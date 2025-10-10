@@ -23,7 +23,8 @@ class Create_Exam(View):
            return render(request,'Update_&_Create_Exam.html',context={'form':frm,'to_do':'create','course_name':course.title,'course_id':course.id},status=200)
         except Course.DoesNotExist:
             return render(request,'Dynamic_Message.html',context={'message':'درسی با مشخصات وارد شده یافت نشد'},status=404)
-        except:
+        except Exception as e:
+            print(e)
             return render(request,'Dynamic_Message.html',context={'message':'مشکلی در پردازش درخواست شما به وجود آمد!'},status=500)
 
     def post(self, request,course_id):

@@ -73,5 +73,5 @@ class Score_Appeal(models.Model):
     score=models.OneToOneField(Course_Score,on_delete=models.CASCADE,verbose_name='این اعتراض برای کدام نمره نوشته شده است'
                                ,null=False,blank=False,related_name='appeal',error_messages={'null':'این فیلد نمی تواند خالی باشد'})
     text=models.TextField(verbose_name='متن اعتراض')
-    date=models.DateTimeField(auto_now_add=True,verbose_name='تاریخ ثبت اعتراض')
+    date=models.DateTimeField(auto_now_add=True,verbose_name='تاریخ ثبت اعتراض',null=True,blank=True)
 

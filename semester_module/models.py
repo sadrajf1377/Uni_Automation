@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Q, Count, When, Value, Case, F, ExpressionWrapper
-from user_module.models import User
+from django.db.models import Q, Count, When, Value, Case, F, ExpressionWrapper, BooleanField, IntegerField
+from user_module.models import User,Student_Profile
 degrees_max_semesters={'کارشناسی پیوسته': 10, 'کارشناسی ناپیوسته': 6,
                       'کاردانی پیوسته': 4,
                        'کاردانی ناپیوسته': 4, 'کارشناسی ارشد ناپیوسته':6,
@@ -12,11 +12,13 @@ degrees_max_semesters={'کارشناسی پیوسته': 10, 'کارشناسی ن
 class Current_Semester(models.Model):
     semester=models.ForeignKey('Semester',on_delete=models.CASCADE,null=False,blank=False)
     def save(self,*args):
-        initial=Current_Semester.objects.all()[0].semester
-        if self.semester!=initial and initial.semester_status!='بسته':
-            raise ValidationError('امکان تغییر ترم فعلی تا به پایان نرسیدن آن وجود ندارد!')
-        if Current_Semester.objects.exclude(id=self.id).exists():
-            raise ValidationError('تنها یک نمونه از ترم فعلی می تواند وجود داشته باشه')
+        cond=Current_Semester.objects.exists()
+        if cond:
+            initial = Current_Semester.objects.all()[0].semester or None
+            if self.semester != initial and initial.semester_status != 'بسته':
+                raise ValidationError('امکان تغییر ترم فعلی تا به پایان نرسیدن آن وجود ندارد!')
+            if Current_Semester.objects.exclude(id=self.id).exists():
+                raise ValidationError('تنها یک نمونه از ترم فعلی می تواند وجود داشته باشه')
         super().save(*args)
 
 
@@ -39,12 +41,14 @@ class Semester(models.Model):
         first_time=self.id==None
         super().save(*args)
         if first_time:
-            annotate_cap = [When(student_profile__degree=key, then=Value(val)) for key, val in
+            annotate_cap = [When(degree=key, then=Value(val)) for key, val in
                             degrees_max_semesters.items()]
-            User.objects.filter(user_type='دانشجو').select_related('student_profile').annotate(
-                max_cap=Case(*annotate_cap),
-                sem_count=Count('attending_courses__semester', distinct=True),
-                cond=ExpressionWrapper(F('sem_count') == F('max_cap'))).filter(cond=True).update(status='اخراج')
+            Student_Profile.objects.filter(is_approved=True).select_related('user').annotate(max_cap=Case(*annotate_cap,output_field=IntegerField()),
+                            semesters_passed=Count('user__attending_courses__semester',distinct=True)).annotate(sems_left=ExpressionWrapper(
+                -F('semesters_passed')+F('max_cap'),output_field=IntegerField()
+            )).filter(sems_left__lte=0).update(status='اخراج')
+
+
     def duration(self):
         return (self.end_date-self.start_date).seconds
     def __str__(self):
