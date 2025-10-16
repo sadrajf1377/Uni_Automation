@@ -152,7 +152,8 @@ class Teacher_Courses(ListView):
         user=self.request.user
         has_exam=Exam.objects.filter(course_id=OuterRef('pk'))
         current_sem_id=self.request.session.get('semester') or Current_Semester.objects.all()[0].id
-        query=user.teacher_courses.all().filter(semester_id=current_sem_id).prefetch_related('students').annotate(students_count=Count('students')
+        query=user.teacher_courses.all().filter(semester_id=current_sem_id).prefetch_related('students').annotate(scores_average=Avg('students__scores',filter=Q(students__scores__course_id=F('pk')))
+        ,students_count=Count('students')
                                                                                                                   ,has_exam=Exists(has_exam)).prefetch_related(Prefetch('class_times',queryset=Class_Times.objects.all(),to_attr='times'))
         print(query)
         return query
@@ -218,6 +219,14 @@ class Delete_Course_Students(View):
 
 
 class Submite_Students_Scores(View):
+    def get(self,request,course_id):
+        try:
+            course=request.user.teacher_courses.get(id=course_id)
+            score=Course_Score.objects.filter(student_id=OuterRef('pk'),course_id=course_id).values_list('score',flat=True)[:1:]
+            students=course.students.all().annotate(score=Subquery(score))
+            return render(request,'Course_Details.html',context={'students':students},status=200)
+        except:
+            pass
     def post(self,request,course_id):
         try:
             data = json.loads(request.body)

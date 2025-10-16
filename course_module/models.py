@@ -50,6 +50,11 @@ class Course(models.Model):
         super().save(*args)
     def __str__(self):
         return self.title
+    def clean(self):
+        if self.teacher.user_type!='استاد' or not Teacher_Profile.objects.filter(id=self.teacher.id,is_approved=True).exists():
+            raise ValidationError('نوع کاربری که بعنوان استاد درس انتخاب شده باید از نوع استاد باشد و حساب تایید شده داشته باشد')
+        super().clean()
+
         
         
         

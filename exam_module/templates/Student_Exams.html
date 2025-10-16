@@ -10,7 +10,7 @@
 <td></td>
 </tr>
 {% for course in courses %}
-    <tr>
+    <tr id="exam_{{ course.id }}">
     <td>
          <a href="{% url 'submit_exam_answer' course.id %}">
         {% if course.has_answer %}
