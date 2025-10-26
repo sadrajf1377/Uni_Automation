@@ -152,59 +152,22 @@ class Teacher_Courses(ListView):
         user=self.request.user
         has_exam=Exam.objects.filter(course_id=OuterRef('pk'))
         current_sem_id=self.request.session.get('semester') or Current_Semester.objects.all()[0].id
-        query=user.teacher_courses.all().filter(semester_id=current_sem_id).prefetch_related('students').annotate(scores_average=Avg('students__scores',filter=Q(students__scores__course_id=F('pk')))
+        query=user.teacher_courses.all().filter(semester_id=current_sem_id).prefetch_related('students').annotate(
+            scores_average=Avg('students__scores__score',filter=Q(students__scores__course_id=F('pk')))
         ,students_count=Count('students')
-                                                                                                                  ,has_exam=Exists(has_exam)).prefetch_related(Prefetch('class_times',queryset=Class_Times.objects.all(),to_attr='times'))
-        print(query)
+                ,has_exam=Exists(has_exam)).prefetch_related(Prefetch('class_times',queryset=Class_Times.objects.all(),to_attr='times'))
+
         return query
 
-@method_decorator(restrict_view_access(profile_types=['teacher']),name='dispatch')
-class Course_Details(ListView):
-    template_name = 'Course_Details.html'
-    context_object_name = 'students'
-    model=User
-    def dispatch(self, request, *args, **kwargs):
-        course_id = self.kwargs['course_id']
-        self.course=get_object_or_404(Course,id=course_id,teacher=self.request.user)
-        return super().dispatch(request)
-    def get_queryset(self):
-        course_id=self.kwargs['course_id']
-        score_sub=Course_Score.objects.filter(student_id=OuterRef('pk'),course_id=course_id).values('score')[:1:]
-        query=self.course.students.all().annotate(score=Subquery(score_sub))
-        return query
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context=super().get_context_data()
-        context['course']=self.course
-        return context
-
-@method_decorator(restrict_view_access(profile_types=['teacher']),name='dispatch')
-class Update_Courses_Details(View):
-    def post(self,request:HttpRequest,course_id):
-
-        try:
-            course = get_object_or_404(Course, id=course_id, teacher=request.user)
-            data = json.loads(request.body.decode('utf-8'))
-            students_to_delete =data.get('students_to_delete')
-            scores_to_update ={int(key):float(value) for key,value in  data.get('scores_to_update').items()}
-            scores = course.scores.all().filter(student_id__in=scores_to_update.keys()).select_for_update()
-            to_update = []
-            print(scores_to_update)
-            for sc in scores:
-                sc.score = scores_to_update.get(sc.student_id)
-                to_update.append(sc)
-            course.scores.bulk_update(to_update, fields=['score'])
-            for std in course.students.filter(id__in=students_to_delete):
-                course.students.remove(std)
-            return redirect(reverse('view_course_details', args=[course_id]))
-        except Course.DoesNotExist:
-            return render(request,'Dynamic_Message.html',context={'message':'درسی با مشخصات ذکر شده یافت نشد'},status=404)
-        except Exception as e:
-
-            print('exception',e)
-            return render(request,'Dynamic_Message.html',context={'message':'مشکلی در پردازش درخواست شما به وجود آمد!لطفا مجدد تلاش بفرمایید'},status=500)
 
 
-class Delete_Course_Students(View):
+
+
+
+class Remove_Course_Students(View):
+    def get(self,request,course_id):
+        course=get_object_or_404(Course,teacher_id=request.user.id,id=course_id)
+        return render(request,'Course_Details.html',context={'students':course.students.all(),'to_do':'remove_students','course':course},status=201)
     def post(self,request,course_id):
         data=json.loads(request.body)
         ids=data['students_ids']
@@ -218,15 +181,12 @@ class Delete_Course_Students(View):
         return JsonResponse(data={'message':'دانشجویان با موفقیت حذف شدند!'})
 
 
-class Submite_Students_Scores(View):
+class Update_Students_Scores(View):
     def get(self,request,course_id):
-        try:
-            course=request.user.teacher_courses.get(id=course_id)
-            score=Course_Score.objects.filter(student_id=OuterRef('pk'),course_id=course_id).values_list('score',flat=True)[:1:]
-            students=course.students.all().annotate(score=Subquery(score))
-            return render(request,'Course_Details.html',context={'students':students},status=200)
-        except:
-            pass
+        course=get_object_or_404(Course,id=course_id,teacher_id=request.user.id)
+        score_sub=Course_Score.objects.filter(course_id=course_id,student_id=OuterRef('pk')).values_list('score',flat=True)[:1:]
+        return render(request,'Course_Details.html',context={'course':course,
+            'students':course.students.all().annotate(score=Subquery(score_sub)),'to_do':'update_scores'},status=201)
     def post(self,request,course_id):
         try:
             data = json.loads(request.body)

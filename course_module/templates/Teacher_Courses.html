@@ -45,7 +45,9 @@ td:nth-child(2n){background-color: whitesmoke}
         </a>
     </td>
       <td>
-          <a href="{% url 'view_course_details' course.id %}">{{ course.title }}</a></td>
+          <a href="{% url 'remove_students' course.id %}">حذف دانشجویان</a>
+           <a href="{% url 'update_students_scores' course.id %}">ویرایش نمرات</a>
+      </td>
     <td>{{ course.credits }}</td>
     <td>{{ course.students_count }}</td>
     <td>

@@ -41,6 +41,7 @@ section#main_table>table>tr>td:nth-child(2n){background-color: gray}
 {% block main_content %}
     {% csrf_token %}
     <section id="second_table">
+    {% if to_do == 'remove_students' %}
     <table id="students_to_delete" >
         <p>دانشجویان حذفی
 
@@ -51,6 +52,7 @@ section#main_table>table>tr>td:nth-child(2n){background-color: gray}
             </td>
         </tr>
     </table>
+        {% elif to_do == 'update_scores' %}
     <table id="scores_to_update">
         نمرات تغییر یافته
         <tr id="-1">
@@ -59,15 +61,19 @@ section#main_table>table>tr>td:nth-child(2n){background-color: gray}
             <td>نمره قدیم</td>
         </tr>
     </table>
+    {% endif %}
     </section>
     <section id="main_table">
 <table>
 <tr >
-     <td>
+     <td></td>
 
-     </td>
-    <td>نام دانشجو</td>
+    {% if to_do == 'update_scores' %}
     <td>نمره</td>
+        {% elif to_do == 'remove_students' %}
+       <td>حذف دانشجو</td>
+    {% endif %}
+      <td>نام دانشجو</td>
    <td></td>
 
 
@@ -75,10 +81,15 @@ section#main_table>table>tr>td:nth-child(2n){background-color: gray}
 
     {% for st in students %}
         <tr>
+         <td></td>
+        {% if to_do == 'remove_students' %}
       <td><button onclick="add_or_remove_students('{{ st.id }}',this,'{{ st.username }}')">حذف دانشجو</button></td>
-    <td>{{ st.username }}</td>
-    <td><input type="number" value="{{ st.score }}" data-initial_value="{{ st.score }}" data-name="{{ st.username }}" data-id="{{ st.id }}"
+            {% elif to_do == 'update_scores' %}
+             <td><input type="number" value="{{ st.score }}" data-initial_value="{{ st.score }}" data-name="{{ st.username }}" data-id="{{ st.id }}"
                oninput="update_score(this)"></td>
+            {% endif %}
+       <td>{{ st.username }}</td>
+
         <td class="row_number"></td>
 
         </tr>
@@ -109,10 +120,12 @@ for(const el of rows){
 
 
 //////////////////////////////
-const students_to_delete=[];
-const scores_to_update={};
-const scores_table=document.getElementById('scores_to_update');
-const to_delete_table=document.getElementById('students_to_delete');
+
+
+
+{% if to_do == 'remove_students' %}
+    const students_to_delete=[];
+    const to_delete_table=document.getElementById('students_to_delete');
 function add_or_remove_students(student_id,el,std_name)
 {
     if(students_to_delete.includes(student_id)){
@@ -132,6 +145,9 @@ function add_or_remove_students(student_id,el,std_name)
     to_delete_table.appendChild(tr);
     }
 }
+{% elif to_do == 'update_scores' %}
+    const scores_to_update={};
+const scores_table=document.getElementById('scores_to_update');
 function update_score(input){
     const id=input.getAttribute('data-id');
     const value=parseFloat(input.value);
@@ -173,18 +189,23 @@ else{
     }
 }
 }
-
+{% endif %}
 
 
 ///
 
 function submit_changes()
 {
-    console.log('to delete',students_to_delete,'to update',scores_to_update)
-const token=document.getElementsByName('csrfmiddlewaretoken')[0].value;
-fetch('{% url 'update_course_details' course.id %}',{headers:{'X-CSRFtoken':token},method:'POST',
-    body:JSON.stringify({'students_to_delete':students_to_delete,'scores_to_update':scores_to_update}),'Content-Type': 'application/json'}).then(res=>{console.log(res)}).catch(res=>{console.log(res)})
 
+const token=document.getElementsByName('csrfmiddlewaretoken')[0].value;
+    {% if to_do == 'update_scores' %}
+fetch('{% url 'update_students_scores' course.id %}',{headers:{'X-CSRFtoken':token},method:'POST',
+    body:JSON.stringify({'scores_to_update':scores_to_update}),'Content-Type': 'application/json'}).then(res=>{console.log(res)}).catch(res=>{console.log(res)})
+        {% elif to_do == 'remove_students' %}
+        //'students_to_delete':students_to_delete,
+        fetch('{% url 'update_students_scores' course.id %}',{headers:{'X-CSRFtoken':token},method:'POST',
+    body:JSON.stringify({'students_to_remove':students_to_delete}),'Content-Type': 'application/json'}).then(res=>{console.log(res)}).catch(res=>{console.log(res)})
+    {% endif %}
 }
 </script>
 {% endblock %}

@@ -106,7 +106,7 @@ class Submit_Exam_Answer(View):
                 answer, a = Exam_Answer.objects.get_or_create(exam_id=exam.id, author_id=request.user.id)
                 frm = Exam_Answer_Form(instance=answer)
                 return render(request, 'Submit_Exam_Answer.html',
-                              context={'form': frm, 'course_name': exam.course.title,'course_id':course_id}, status=200)
+                              context={'form': frm, 'course_name': exam.course.title,'course_id':course_id}, status=201)
 
         except Exam.DoesNotExist:
             return render(request,'Dynamic_Message.html',context={'message':'آزمونی با مشخصات وارد شده پیدا نشد!'},status=404)
