@@ -9,8 +9,10 @@ profiles={'student':Student_Profile,'teacher':Teacher_Profile,'employee':Employe
 def restrict_view_access(profile_types,roles='all'):
     def wrapper(func):
         def to_do(*args,**kwargs):
-            user=args[0].user
+            if any((pr for pr in profile_types if not pr in profiles)):
+                return HttpResponse('نقش وارد شده معتبر نمی باشد!')
 
+            user=args[0].user
             cond=Q(user_id=user.id,is_approved=True)
             if roles!='all':
                 cond&=Q(role__in=roles)

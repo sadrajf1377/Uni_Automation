@@ -4,11 +4,12 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import UpdateView, ListView
 from .models import Student_Profile, Employee_Profile, Teacher_Profile, User,General_Profile
 from .forms import Student_Profile_Form,Employee_Profile_Form,Teacher_Profile_Form,Student_Search_Form,Teacher_Search_Form,Employee_Search_Form
-
+from utils.decorators import restrict_view_access
 profiles_dict={'دانشجو':[Student_Profile_Form,Student_Profile],'استاد':[Teacher_Profile_Form,Teacher_Profile],'کارمند یا کارشناس':[Employee_Profile_Form,Employee_Profile]}
 
 class Update_Profile(View):
@@ -27,7 +28,7 @@ class Update_Profile(View):
         else:
             return render(request, 'Update_Profile.html', context={'frm': frm})
 
-
+@method_decorator(restrict_view_access(['teacher'],['رییس دانشکده']),name='dispatch')
 class Search_Users(ListView):
     template_name = 'USers_List.html'
     model = User
@@ -46,6 +47,7 @@ class Search_Users(ListView):
         return query
 
 
+@method_decorator(restrict_view_access(['teacher'],['رییس دانشکده']),name='dispatch')
 class Change_User_Profile_Status(View):
     def post(self,request):
         try:
@@ -86,7 +88,7 @@ class Teachers_Sorted_By_Ratings(ListView):
         return query
 
 # Create your views here.
-
+@method_decorator(restrict_view_access(['teacher'],['رییس دانشکده']),name='dispatch')
 class Load_Profiles_Filters(View):
     def get(self,request):
         student_frm=Student_Search_Form()
@@ -94,6 +96,7 @@ class Load_Profiles_Filters(View):
         employee_form=Employee_Search_Form()
         return render(request,'Filter_Profiles.html',context={'teacher_frm':teacher_frm,'student_frm':student_frm,'employee_frm':employee_form},status=200)
 
+@method_decorator(restrict_view_access(['teacher'],['رییس دانشکده']),name='dispatch')
 class UnApproved_Users(ListView):
     template_name = 'Unapproved_Profiles.html'
     model = User
@@ -101,6 +104,7 @@ class UnApproved_Users(ListView):
     paginate_by = 20
     ordering = '-date_joined'
 
+@method_decorator(restrict_view_access(['teacher'],['رییس دانشکده']),name='dispatch')
 class UnApproved_Students(UnApproved_Users):
     def get_queryset(self):
         #'department','degree','current_degree_code'
@@ -110,6 +114,7 @@ class UnApproved_Students(UnApproved_Users):
                                                                               ,student_profile__degree=degree).annotate(profile_id=F('student_profile__id'))
         return query
 
+@method_decorator(restrict_view_access(['teacher'],['رییس دانشکده']),name='dispatch')
 class UnApproved_Teachers(UnApproved_Users):
     def get_queryset(self):
         #'department','rank','latest_degree_code'
@@ -120,6 +125,7 @@ class UnApproved_Teachers(UnApproved_Users):
                                                                                                           ,teacher_profile__rank=rank).annotate(profile_id=F('teacher_profile__id'))
         return query
 
+@method_decorator(restrict_view_access(['teacher'],['رییس دانشکده']),name='dispatch')
 class UnApproved_Employees(UnApproved_Users):
     def get_queryset(self):
         #'role', 'latest_degree_code'
@@ -128,7 +134,7 @@ class UnApproved_Employees(UnApproved_Users):
                                                                                     employee_profile__role=role).annotate(profile_id=F('employee_profile__id'))
         return query
 
-
+@method_decorator(restrict_view_access(['teacher'],['رییس دانشکده']),name='dispatch')
 class Approve_User(View):
     def post(self,request,profile_id,profile_type):
         try:

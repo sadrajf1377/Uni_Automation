@@ -14,7 +14,7 @@
     <td>{% url 'approve_user' user.profile_id user.user_type %}</td>
     <td>{{ user.date_joined }}</td>
     <td>{{ user.user_type }}</td>
-    <td>{{ user.username }}</td>
+    <td id="{{ user.id }}">{{ user.username }}</td>
     <td></td>
     </tr>
 
