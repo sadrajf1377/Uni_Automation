@@ -80,3 +80,11 @@
 </section>
 
 {% endblock %}
+{% block scripts %}
+<script>
+
+systemMessage.style.display='block';
+systemMessage.querySelector('div#body').innerHTML='کاربر'+'{{ user.username }}'+'خوش آمدید'
+</script>
+
+{% endblock %}
