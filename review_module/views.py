@@ -21,8 +21,8 @@ class Teachers_To_Review(ListView):
     ordering = '-exam_time'
     def get_queryset(self):
         sem=self.request.session.get('semester') or Current_Semester.objects.first().semester.id
-        q=Review_Session.objects.filter(semester_id=sem,teacher=OuterRef('teacher_id'),student_id=self.request.user.id,session_closed=False)
-        query=super().get_queryset().filter(semester_id=sem,students=self.request.user).select_related('teacher').annotate(is_open=Exists(q))
+        q=Review_Session.objects.filter(semester_id=sem,teacher=OuterRef('teacher_id'),student_id=self.request.user.id,session_closed=True)
+        query=super().get_queryset().filter(semester_id=sem,students=self.request.user).select_related('teacher').annotate(is_closed=Exists(q))
         return query
 
 
@@ -34,11 +34,11 @@ class Load_Review(View):
             reviews=session.reviews.all()
             return render(request,'Review_Teachers.html',context={'reviews':reviews,'review_session_id':session.id})
         except IntegrityError as e:
-            return render(request,'Review_Teachers.html',context={'message':'مشکلی در پردازش درخواست شما به وجود آمد'+str(e)},status=409)
+            return render(request,'Dynamic_Message.html',context={'message':'مشکلی در پردازش درخواست شما به وجود آمد'+str(e)},status=409)
         except ValidationError as e:
-            return render(request,'Review_Teachers.html',context={'message':'مشکلی در پردازش درخواست شما به وجود آمد'+str(e)},status=409)
+            return render(request,'Dynamic_Message.html',context={'message':'مشکلی در پردازش درخواست شما به وجود آمد'+str(e)},status=409)
         except Exception as e:
-            return render(request, 'Review_Teachers.html',
+            return render(request, 'Dynamic_Message.html',
                           context={'message': ' مشکلی در پردازش درخواست شما به وجود آمد!لطفا مجددا تلاش بفرمایید یا با پشتیبانی تماس بگیرید!'}, status=500)
 
 

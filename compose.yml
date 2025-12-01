@@ -1,14 +1,13 @@
 services:
   uni_automation:
     container_name: 'Uni_Automation'
-    environment:
-      - ALLOWED_HOSTS=localhost,127.0.0.1
-      - DEBUG=True
-      - SECRET_KEY=django-insecure-mvw84&&rc4y+x3n%*4ae+gx+wd2cesfa6gdi4rtk&hmuj_tyx1
+    env_file:
+      - ./env/variables.env
     build:
       context: ./
       dockerfile: .Dockerfile
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000 "
+    command: sh -c "python manage.py migrate && gunicorn Uni_Automation.wsgi -w 4 -b 0.0.0.0:8000"
+
     volumes:
       - .:/app
     ports:
@@ -17,9 +16,13 @@ services:
     depends_on:
       - redis
       - celery
+      - postgresql
+
 
   redis:
     image: redis:7.0.11-alpine
+
+
   celery:
     container_name: 'celery'
     command: celery -A Uni_Automation worker --loglevel=info
@@ -28,12 +31,23 @@ services:
       dockerfile: .Dockerfile
     volumes:
       - .:/app
-
-    environment:
-      - ALLOWED_HOSTS=localhost,127.0.0.1
-      - DEBUG=True
-      - SECRET_KEY=django-insecure-!o1_ju3&t13tyx=)ho4=81+7^$$#(&_u$wz@a1(s0b$e7@z5a1
+    env_file:
+      ./env/variables.env
     depends_on:
       - redis
+
+  postgresql:
+    image: postgres:16
+    container_name: postgresql_db
+    restart: always
+    env_file:
+      - ./env/database_creds.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+    pgdata:
 
 

@@ -1,242 +1,204 @@
 {% load polls_extra %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}{% endblock %}</title>
-    <link href="/static/css/base_layout.css" type="text/css">
-    <style>
-        body{
-   background-color: lightskyblue;
-  display: flex;flex-direction: column;
+<meta charset="UTF-8">
+<title>{% block title %}{% endblock %}</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;700&display=swap');
 
-}
-
-#head
-{
-    width: 100%;height:fit-content;background-color: deepskyblue;border-radius: 1.5%;
-    display: flex;flex-direction: column;box-shadow: inset 0 0 15px whitesmoke;position: fixed;top:0;left:0;
-
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family:'Vazirmatn', sans-serif;
+    background: linear-gradient(135deg,#87cefa,#1e90ff);
+    display:flex; flex-direction:column;
+    height:100vh;
+    direction: rtl;
 }
 
-#head>.rows{
-    height: fit-content;
-    font-size: calc(4vh);color: whitesmoke;text-align: center;
-}
-#head>.rows>.clickable{
-    ;height: 20%;color: whitesmoke;border-radius: 2%;background-color:dodgerblue;color: whitesmoke;
-    font-size: calc(100%);margin-right: 0.1%;width: 25%;transition:box-shadow 0.5s ease;
-
-}
-.clickable:hover{
-    box-shadow: inset 0 0 5px whitesmoke;cursor: pointer;
+/* هدر ثابت */
+#head {
+    position: fixed; top:0; left:0; width:100%; height:10vh;
+    background-color:#007acc; color:white;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2); z-index:1000;color: whitesmoke;
 }
 
-#sidebar{
-    height: 80vh;background-color: deepskyblue;width:15vw;
-    position: fixed;right:0;top:9vh;
-    box-shadow: inset 0 0 15px whitesmoke;overflow-y: scroll;
-    display: flex;flex-direction: column; overflow-x: hidden;text-align: center;transform: scale(0);
+#head .rows {
+    display:flex; flex-direction:row; align-items:center; width:95%; justify-content:flex-start; gap:1rem;
+    color: whitesmoke;
+}
 
+.clickable {
+    background-color:#1e90ff; padding:0.5rem 1rem; border-radius:8px;
+    cursor:pointer; transition:0.3s; text-decoration:none; color:whitesmoke; font-weight:bold;
 }
-#sidebar>ul{
-    margin-top: 2%;width: 100%;margin-right: 0.15%;text-align: right;direction: rtl;word-wrap: break-word;
+
+.clickable:hover { background-color:#63b3ff; }
+
+/* سایدبار */
+#sidebar {
+    position: fixed; top:10vh; right:0; width:250px; height:90vh;
+    background-color:#007acc; box-shadow:-4px 0 10px rgba(0,0,0,0.2);
+    transform: translateX(100%); transition: transform 0.3s ease;
+    overflow-y:auto; padding-top:1rem; z-index:900;
 }
-section#main{
-    width: 100vw;height: fit-content;margin-top: 9vh;display: flex;flex-direction: column;flex-shrink: unset;
+
+/* درخت */
+.tree ul {
+    list-style:none;
+    padding-right:1rem;
+    margin:0;
+    position: relative;
 }
-#sidebar>ul>ul.container{
-height: fit-content;width: 100%;transition: 0.5s ease height;border-right: 1px solid whitesmoke;
+
+.tree ul ul {
+    padding-right:1rem;
 }
-ul.container>li{
-    text-align: right;color: whitesmoke;border-bottom: 1px solid whitesmoke;
-    list-style: none;border-right: 1px solid whitesmoke;margin-right: 0;
+
+.tree li {
+    margin:0.5rem 0;
+    padding:0.3rem 0;
+    position: relative;
+    text-align:right;
+    cursor:pointer;color: whitesmoke;
 }
-#system_message{
-    height: 10vh;display: flex;flex-direction: column;width: 40vw;position: fixed;left: 30vw;top:30vh;transform: scale(0);
-    box-shadow: 5vh 5vh 5vh lightgray;border: none;border-radius: 2%;z-index: 99 !important;
+
+.tree li::before {
+    content:'';
+    position:absolute;
+    top:0; right:-10px;
+    width:1px; height:100%;
+    border-left:1px solid rgba(255,255,255,0.5);
 }
-#system_message>#head{
-    width: 100%;text-align: center;background-color: deepskyblue;color: white;word-wrap: break-word;
-    height: 30%;position: relative;
+
+.tree li::after {
+    content:'';
+    position:absolute;
+    top:50%; right:-10px;
+    width:10px; height:1px;
+    border-top:1px solid rgba(255,255,255,0.5);
 }
-#system_message>#body{
-    width: 100%;text-align: center;background-color: gray;color: white;word-wrap: break-word;
-    height: 70%;
+
+.tree li:last-child::before { height:50%; }
+
+.tree li.parent > span {
+    font-weight:bold;
+    display:flex; justify-content:space-between; align-items:center;
 }
-#system_message>#close{
-    position: absolute;top:-2vh;left: -2%;color: whitesmoke;background-color: red;
-    width: 8%;text-align: center;border-radius: 20%;
+
+.tree li ul { display:none; }
+
+/* محتوای اصلی */
+#main {
+    margin-top:10vh; padding:2rem; transition: margin-right 0.3s;
 }
-    </style>
-    {% block dynamic_style %}
+
+/* سیستم مسیج */
+#system_message {
+    display:none; position:fixed; left:50%; top:30%;
+    transform:translate(-50%,-50%);
+    background-color: rgba(0,0,0,0.85); color:white;
+    padding:1rem 2rem; border-radius:12px; z-index:2000; max-width:80%; text-align:center;
+}
+
+#system_message #close {
+    margin-top:1rem; background-color:#ff4d4d;
+    padding:0.3rem 0.6rem; border:none; border-radius:8px; cursor:pointer;
+}
+
+@media(max-width:768px){
+    #sidebar { width:70%; }
+}
 
 
-    {% endblock %}
+
+</style>
+{% block dynamic_style %}
+
+{% endblock %}
 </head>
 <body>
+
 <section id="system_message">
-<div id="head">پیغام سیستم</div>
-    <div id="body">یک پیام از سکس</div>
-    <p id="close">بستن</p>
+    <div id="body">پیغام سیستم</div>
+    <button id="close">بستن</button>
 </section>
+
+<!-- هدر -->
 <section id="head">
-  <div class="rows">
-      خوش آمدید
-  </div>
-    <div class="rows" style="display: flex;flex-direction: row-reverse;margin-top: 1vh" >
-        <div class="clickable" onclick="open_close_sidebar()"> داشبورد </div>
-    <div class="clickable"> خروج </div>
-    <a class="clickable" href="{% url 'change_semester' %}">
-        {{ request|get_current_semester }}
-        تغییر نیمسال </a>
-        <div class="clickable"> درباره ما </div>
-
+    <div class="rows">
+        <div class="clickable" onclick="toggleSidebar()">☰ داشبورد</div>
+        <div class="clickable"><a href="#" style="color:white">خروج</a></div>
+        <div class="clickable">
+            <a href="{% url 'change_semester' %}" style="color:white">
+                {{ request|get_current_semester }} تغییر نیمسال
+            </a>
+        </div>
+        <div class="clickable">درباره ما</div>
     </div>
-
 </section>
 
-<section id="sidebar" >
-<ul>
+<!-- سایدبار -->
+<section id="sidebar">
+    <div class="tree">
+        <ul>
+            <li class="parent"><span onclick="toggleNode(this)">عملیات آموزشی دانشجو ▾</span>
+                <ul>
+                    <li>انتخاب واحد</li>
+                    <li>امتحانات</li>
 
-    <ul class="container">
-        <li>
-            خدمات 1
-        </li>
-        <li>
-            خدمات 1
-        </li>
-        <li>
-            خدمات 1
-        </li>
-
-    </ul>
-</ul>
-    <ul>
-    خدمات
-         <ul class="container">
-             <li>
-        <a href="{% url 'report_card' %}">
-            کارنامه
-        </a>
-
-             </li>
-             <li>
-                 <a href="{% url 'semester_report_card' %}">
-                     نمرات این ترم
-                 </a>
-             </li>
-             <li>
-        <a href="{% url 'weekly_schedule' %}">
-           برنامه هفتگی
-        </a>
-             </li>
-        <li>
-            <a href="{% url 'courses_list' 'all' 'all' 'all' 'all' %}">
-                درس های ارائه شده
-            </a>
-        </li>
-              <li>
-            <a href="{% url 'teacher_courses' %}">
-                درس های استاد
-            </a>
-
-        </li>
-             <li>
-                  <a href="{% url 'change_global_semester' %}">
-                تغییر نیمسال جهانی
-            </a>
-             </li>
-             <li>
-                  <a href="{% url 'permits_list' %}">
-                مجوز های من
-            </a>
-             </li>
-                <li>
-                  <a href="{% url 'ask_for_permit' %}">
-                درخواست مجوز جدید
-            </a>
-             </li>
-             <li>
-                  <a href="{% url 'exams_schedule' %}">
-                برنامه امتحانات
-            </a>
-             </li>
-             <li>
-                  <a href="{% url 'teachers_to_review' %}">
-                ارزشیابی اساتید
-            </a>
-             </li>
-               <li>
-                  <a href="{% url 'teachers_ratings' %}">
-                رتبه بندی اساتید
-            </a>
-             </li>
-             <li>
-                  <a href="{% url 'unconfirmed_permits' %}">
-                مجوز های تایید نشده
-            </a>
-             </li>
-             <li>
-                  <a href="{% url 'load_profile_filters' %}">
-               پروفایل های تایید نشده
-            </a>
-             </li>
-             <li>
-                  <a href="{% url 'my_tickets' %}">
-               تیکت های من
-            </a>
-             </li>
-             <li>
-                  <a href="{% url 'departments_list' %}">
-               دپارتمان ها
-            </a>
-             </li>
-             <li>
-                  <a href="{% url 'top_students' %}">
-               برترین دانشجویان
-            </a>
-             </li>
-              <li>
-                  <a href="{% url 'student_exams' %}">
-               امتحانات مجازی
-            </a>
-             </li>
-
-    </ul>
-</ul>
-    <ul>
-    خدمات
-         <ul class="container">
-        <li>
-            خدمات 1
-        </li>
-        <li>
-            خدمات 1
-        </li>
-        <li>
-            خدمات 1
-        </li>
-
-    </ul>
-</ul>
+                </ul>
+            </li>
+            <li class="parent"><span onclick="toggleNode(this)">مجوزها ▾</span>
+                <ul>
+                    <li onclick="window.open('{% url 'permits_list' %}','_self')">مجوزهای من</li>
+                    <li onclick="window.open('{% url 'ask_for_permit' %}','_self')">درخواست مجوز جدید</li>
+                </ul>
+            </li>
+            <li class="parent"><span onclick="toggleNode(this)">امتحانات▾</span>
+                <ul>
+                    <li onclick="window.open('{% url 'semester_report_card' %}','_self')">کارنامه ترم</li>
+                    <li onclick="window.open('{% url 'report_card' %}')">کارنامه کل</li>
+                    <li onclick="window.open('{% url 'teachers_to_review' %}')">ارزشیابی اساتید</li>
+                </ul>
+            </li>
+            <li class="parent"><span onclick="toggleNode(this)">دروس ▾</span>
+                <ul>
+                    <li onclick="window.open('{% url 'weekly_schedule' %}','_self')">برنامه هفتگی</li>
+                    <li onclick="window.open('{% url 'courses_list' 'all' 'all' 'all' 'all' %}','_self')">دروس ارائه شده این ترم</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
 </section>
+
+<!-- محتوای اصلی -->
 <section id="main">
+
+
     {% block main_content %}
-
-
     {% endblock %}
-</section>
-<script>
-    const side_bar=document.getElementById('sidebar')
-    function open_close_sidebar()
-    {
 
-        const scale=side_bar.style.transform
-        console.log(scale);
-      side_bar.style.transform=scale=='scale(1)'?'scale(0)':'scale(1)';
-    }
+</section>
+
+<script>
+const sidebar = document.getElementById('sidebar');
+function toggleSidebar() {
+    sidebar.style.transform =
+        sidebar.style.transform==='translateX(0%)' ? 'translateX(100%)' : 'translateX(0%)';
+}
+
+function toggleNode(span){
+    const ul = span.nextElementSibling;
+    if(ul) ul.style.display = (ul.style.display==='block')?'none':'block';
+}
+
+const systemMessage = document.getElementById('system_message');
+const closeBtn = document.getElementById('close');
+closeBtn.onclick = () => { systemMessage.style.display='none'; }
 </script>
+
 {% block scripts %}{% endblock %}
 </body>
 </html>

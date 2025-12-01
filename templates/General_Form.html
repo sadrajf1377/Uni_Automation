@@ -2,33 +2,87 @@
 {% block title %} {{ title }} {% endblock %}
 {% block dynamic_style %}
 <style>
-form{
-    margin-top: 10vh;width: 40%;
-    margin-left: 30%;border-radius: 1.5%;border: none;
-    background-color: lightskyblue;
-   height: fit-content;position: relative;
 
-}
-form>div{
-    width:44%;margin-right:4%;height: fit-content;
-    float: right;text-align: center;
-}
-form>div:nth-child(2n){
-    clear: right;
-}
-form>div>input,textarea,select,option
-{
-    width: 44%;margin-right:4%;border: none;box-shadow: 1px 1px 1px gray;
-    border-radius: 1.5%;outline: none;height: 2vh;resize: none;
+form {
+    width: 55vw;
+    margin: 13vh auto 0 auto;
+    padding: 2rem 1.5rem;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.22);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    direction: rtl;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem 2%;
 }
 
-form>div>button{
-    border: none;background-color:lightgreen;color: whitesmoke;border-radius: 1.5%;
-    height: 3vh;width: 100%;font-size: 100%;
+/* هر فیلد یک باکس مرتب */
+form > div {
+    width: 48%;
+    text-align: right;
+    font-size: 1rem;
+    color: #003b5c;
 }
+
+/* فیلدهای تک سطری */
+form input,
+form select,
+form textarea {
+    width: 100%;
+    padding: 0.6rem;
+    margin-top: 0.4rem;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255,255,255,0.7);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    outline: none;
+    font-size: 1rem;
+}
+
+/* textarea بهتر بشه */
+form textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+/* دکمه */
+form button {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 12px;
+    border: none;
+    background: #28c76f;
+    color: white;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+form button:hover {
+    background: #20b763;
+}
+
+/* باکس آخر (دکمه) فول‌ویث */
+form > div:last-child {
+    width: 100%;
+    text-align: center;
+}
+
+/* موبایل */
+@media (max-width: 768px){
+    form {
+        width: 90vw;
+    }
+    form > div {
+        width: 100%;
+    }
+}
+
 </style>
-
 {% endblock %}
+
 {% block main_content %}
 <form method="post" action="{% url url_name %}">
 {% csrf_token %}

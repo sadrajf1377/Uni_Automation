@@ -8,9 +8,8 @@ class Semester_Form(ModelForm):
         widgets={'start_date':forms.SelectDateWidget(),'end_date':forms.SelectDateWidget()}
 
 class Change_Semester_Form(forms.Form):
-
-    semester_id=forms.CharField(widget=forms.Select(choices=
-                                                         ((x.id,x.start_date) for x in Semester.objects.all())),label='نیمسال')
+    semester_id = forms.CharField(widget=forms.Select(choices=(1,2)),
+                                  label='نیمسال')
 
 class Change_Semester_Global_Form(forms.ModelForm):
     class Meta:

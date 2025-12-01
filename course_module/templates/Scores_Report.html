@@ -5,30 +5,109 @@
 {% endblock %}
 {% block dynamic_style %}
 <style>
-        table{
-            height: fit-content;width: 60%;border: none;margin-left: 20%;
-            margin-top: 5%;border-radius: 1.5%;display: flex;flex-direction: column;
-        }
-        tr{
-            height: fit-content;width: 100%;display: flex;flex-direction: row-reverse;
-        }
-        tr.semester{
-            height: fit-content;width: 100%;display: flex;flex-direction: row-reverse;margin-top: 10vh;
-        }
-        td{
-            height: fit-content;width:25%;font-size: calc(1vh + 1vw);border: 1px whitesmoke solid;border: 1px solid black;
-            text-align: center;
-        }
-        td:nth-child(1n){background-color: lightgray;color:black}
-        td:nth-child(2n){background-color: whitesmoke;color: black}
-        form#appeal_form{
-            height: fit-content;width: 60vw;position: fixed;left:20vw; top:15vh;border: none;box-shadow: 5px 5px 5px lightgray;
-            font-size: calc(2vh);transition: transform 0.5s ease;text-align: center;
-        }
-        form#appeal_form>input,textarea,select,option,button{
-            height: fit-content;width: 50%;border: none;border-radius: 5%;box-shadow: 5px 5px 5px lightgray;margin-left:25%;resize: none;
-        }
-    </style>
+
+table{
+    width: 70%;
+    margin: 6vh auto;
+    border-collapse: collapse;
+    direction: rtl;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* هر ردیف، ساختار اصلی حفظ شده */
+tr{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+/* ردیف عنوان نیمسال */
+tr.semester{
+    background: #007acc;
+    color: white !important;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+td{
+    flex: 1; /* ستون‌ها مقیاس ثابت پیدا می‌کنند */
+    padding: 1rem .5rem;
+    border: 1px solid #dcdcdc;
+    text-align: center;
+    font-size: 1rem;
+    background: #fafafa;
+    color: #003b5c;
+}
+
+/* رنگ‌بندی راه‌راه بدون به‌هم‌ریختن ساختار */
+td:nth-child(odd){
+    background: #f0f4f8;
+}
+td:nth-child(even){
+    background: #ffffff;
+}
+
+/* فرم اعتراض */
+form#appeal_form{
+    width: 50vw;
+    background: white;
+    position: fixed;
+    top: 15vh;
+    left: 25vw;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    transform: scale(0);
+    transition: .35s ease;
+}
+
+form#appeal_form input,
+form#appeal_form textarea,
+form#appeal_form select{
+    width: 90%;
+    padding: .7rem;
+    margin: .5rem 0;
+    border: 1px solid #bfc5d2;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+form#appeal_form button{
+    width: 92%;
+    padding: .8rem;
+    margin-top: .8rem;
+    font-size: 1rem;
+    border: none;
+    background: #007acc;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: .25s;
+}
+
+form#appeal_form button:hover{
+    background: #1e90ff;
+}
+
+@media(max-width: 768px){
+    table{
+        width: 95%;
+    }
+    td{
+        font-size: .9rem;
+        padding: .7rem;
+    }
+    form#appeal_form{
+        width: 85vw;
+        left: 7.5vw;
+    }
+}
+
+</style>
+
 {% endblock %}
 {% block main_content %}
     <form id="appeal_form" style="transform: scale(0)">

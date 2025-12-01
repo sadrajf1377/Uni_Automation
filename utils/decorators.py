@@ -34,7 +34,9 @@ def check_semester_status(status_permits_pair:dict,response_type):
     def wrapper(func):
         def to_do(*args,**kwargs):
             request=args[0] or kwargs['request']
-            sem=(Semester.objects.get(id=request.session.get('semester')) or Current_Semester.objects.first().semester)
+            sem_id=request.session.get('semester')
+            sem=Semester.objects.get(id=request.session.get('semester')) if sem_id else Current_Semester.objects.first().semester
+
             for key,value in status_permits_pair.items():
                 if sem.semester_status==key and (Permit.objects.filter(creator=request.user,semester=sem,permit_type=value) if value!='__all__' else True):
                     return func(*args, **kwargs)

@@ -1,25 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <style>
-        table{
-            height: fit-content;width: 40vw;position: fixed;border: 1px solid black;border-radius: 1.5%;
-            display: flex;flex-direction: column;direction: rtl;top:5vh;left: 30vw;
-        }
-        tr{
-            height: fit-content;width: 100%;
-        }
-        td{
-            font-size:calc(1.5vw);color: black;height: fit-content;width:15%;direction: rtl;
-            text-align: center;font-family: "B Nazanin";box-shadow: 5px 5px 5px lightgray;
-        }
-    </style>
-</head>
-<body>
-<table>
-    <tr style="background-color:coral">
+{% extends 'Base_Layout.html' %}
+{% block title %}
+برنامه هفتگی
+{% endblock %}
+{% block dynamic_style %}
+<style>
+
+#weekly_table {
+    width: 70vw;
+    margin: 12vh auto 0 auto; /* میاد زیر هدر */
+    border-collapse: collapse;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.20);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    direction: rtl;
+}
+
+#weekly_table tr {
+    height: 60px;
+}
+
+#weekly_table th {
+    background: rgba(255, 127, 80, 0.85); /* coral */
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 0.5rem;
+}
+
+#weekly_table td {
+    border: 1px solid rgba(255,255,255,0.3);
+    text-align: center;
+    font-size: 1.1rem;
+    padding: 0.7rem;
+    color: #003b5c;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(6px);
+}
+
+/* هاور برای زیبا شدن */
+#weekly_table td:hover {
+    background: rgba(255,255,255,0.35);
+    transition: 0.25s;
+}
+
+/* موبایل */
+@media(max-width: 768px){
+    #weekly_table {
+        width: 95vw;
+        font-size: 0.9rem;
+    }
+    #weekly_table td, #weekly_table th {
+        padding: 0.4rem;
+    }
+}
+
+</style>
+{% endblock %}
+{% block main_content %}
+<table id="weekly_table">
+    <tr style="background-color:whitesmoke">
         <td></td>
         <td>8-10</td>
         <td>10-12</td>
@@ -42,5 +84,4 @@
 
     {% endfor %}
 </table>
-</body>
-</html>
+{% endblock %}

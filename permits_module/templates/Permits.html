@@ -4,22 +4,70 @@
 {% endblock %}
 {% block dynamic_style %}
 <style>
-table{
-    height: fit-content;width: 60%;margin-left: 20%;border: none;box-shadow: 5px 5px 5px lightgray;
 
+#permits_table {
+    width: 70vw;
+    margin: 12vh auto 0 auto;
+    border-collapse: collapse;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.20);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    direction: rtl;
 }
-tr{
-    width: 100%;height: fit-content;
+
+/* ردیف عنوان */
+#permits_table thead tr {
+    background: rgba(0, 122, 204, 0.9);
 }
-td{
-    width: 33.33%;height: fit-content;font-size: calc(2vh);border: 1px solid black; color: black;
+#permits_table thead td {
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 1rem;
 }
-td:nth-child(1n){background-color: white}
-td:nth-child(2n){background-color: lightgray}
+
+/* ردیف‌های معمولی */
+#permits_table td {
+    padding: 0.8rem;
+    text-align: center;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    color: #003b5c;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(6px);
+}
+
+/* زیبانویسی و هاور */
+#permits_table tr:hover td {
+    background: rgba(255,255,255,0.35);
+    transition: 0.25s;
+}
+
+/* چک‌باکس */
+#permits_table input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* موبایل */
+@media(max-width: 768px){
+    #permits_table {
+        width: 95vw;
+        font-size: 0.9rem;
+    }
+    #permits_table td {
+        padding: 0.5rem;
+    }
+}
+
 </style>
 {% endblock %}
 {% block main_content %}
-<table>
+<table id="permits_table">
 <tr>
     <td>
         عنوان درخواست

@@ -1,10 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'Base_Layout.html' %}
 
-</body>
-</html>
+{% block title %}
+سامانه اتوماسیون
+{% endblock %}
+{% block dynamic_style %}
+<style>
+#news_container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.news_card.xl {
+    width: 100%;
+    max-width: 780px;        /* خیلی بزرگ */
+    background: rgba(255,255,255,0.22);
+    backdrop-filter: blur(12px);
+    border-radius: 22px;
+    box-shadow: 0 10px 32px rgba(0,0,0,0.35);
+    overflow: hidden;
+    color: white;
+    transition: .25s ease;
+}
+
+/* هاور */
+.news_card.xl:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+}
+
+/* عکس خیلی بزرگ */
+.news_card.xl img {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+}
+
+/* متن بزرگ */
+.news_card.xl h2 {
+    padding: 1rem 1.6rem 0.4rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.news_card.xl p {
+    padding: 0 1.6rem 1.4rem;
+    font-size: 1.1rem;
+    line-height: 1.9;
+    opacity: 0.96;
+}
+.news_meta {
+    display: flex;
+    justify-content: space-between; /* نویسنده سمت چپ، تاریخ سمت راست */
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.75);
+    padding: 0 1.6rem 1.2rem;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    margin-top: 0.8rem;
+}
+.news_meta .author,
+.news_meta .date {
+    display: inline-block;
+}
+</style>
+{% endblock %}
+{% block main_content %}
+<section id="news_container">
+{% for news_obj in news %}
+    <div class="news_card xl">
+        <img src="" alt="خبر">
+        <h2>{{ news_obj.title }}</h2>
+        <p>{{ news_obj.content }}</p>
+        <div class="news_meta">
+                <span class="author">نویسنده: {{ news_obj.author.first_name }}</span>
+                <span class="date">{{ news_obj.date }}</span>
+            </div>
+    </div>
+{% endfor %}
+</section>
+
+{% endblock %}

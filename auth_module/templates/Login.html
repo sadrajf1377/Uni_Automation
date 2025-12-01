@@ -1,46 +1,132 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>ورود به سامانه دانشجویی</title>
     <style>
-        body{background-color: dodgerblue}
-        form#Login_form{
-            height: fit-content;width: 20vw;position: fixed;left: 40vw;top: 10vh;
-            border: whitesmoke 2px solid;border-radius: 2%;
-            box-shadow: 5px 5px 5px whitesmoke;
+
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;700&display=swap');
+
+        body {
+            font-family: "Vazirmatn", sans-serif;
+            background: linear-gradient(135deg, #0f7ff0, #41a1ff);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
         }
-        #Login_form>input{
-            width: 50%;float: top;margin-left: 25%;height: 3vh;border-radius: 1.5%;border: 1px solid black;
-            margin-top: 1vh;
+
+        .login-box {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            text-align: center;
+            color: white;
+            animation: fadeIn 0.6s ease-in-out;
         }
-        #Login_form>button
-        {
-            width: 40%;height: fit-content;font-size: calc(2vh);margin-bottom: 0;margin-left:30% ;margin-top: 1vh;
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        #Login_form>p{color: whitesmoke;font-size: calc(2.5vh);text-align: center}
+
+        .login-box h2 {
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .login-box p {
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .login-box label {
+            float: right;
+            margin-right: 5%;
+            font-size: 0.9rem;
+        }
+
+        .login-box input {
+            width: 90%;
+            padding: 0.6rem;
+            margin: 0.5rem 0 1rem 0;
+            border-radius: 6px;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .login-box input:focus {
+            box-shadow: 0 0 6px rgba(255,255,255,0.8);
+        }
+
+        .login-box button {
+            width: 60%;
+            padding: 0.7rem;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .login-box button:hover {
+            background: #d9efff;
+            transform: translateY(-2px);
+        }
+
+        .login-box a {
+            color: #fff;
+            font-size: 0.9rem;
+            display: block;
+            margin-top: 1rem;
+        }
+
+        .errorlist {
+            color: #ffdddd;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
     </style>
 </head>
+
 <body>
-<form id="Login_form" action="{% url 'login' %}" method="post">
-{% csrf_token %}
+
+<div class="login-box">
+    <h2>ورود به سامانه</h2>
+
     <p>
-        کاربر گرامی،لطفا با وارد کردن شماره ملی و رمز عبور خود در فرم زیر،وارد شوید
+        کاربر گرامی، لطفاً با وارد کردن شماره ملی و رمز عبور خود وارد شوید:
     </p>
-    {% for field in login_form %}
-    {{ field.label }}
-        <br>
-        {{ field }}
-        <br>
-           {{ field.errors }}
-        <br>
-    {% endfor %}
-   <a href="{% url 'signup' %}">
-       برای ثبت نام اینجا کلیک کنید
-   </a>
-    <button>
-         ورود
-    </button>
-</form>
+
+    <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+
+        {% for field in login_form %}
+            <label>{{ field.label }}</label>
+            <input type="{{ field.field.widget.input_type }}"
+                   name="{{ field.name }}"
+                   value="{{ field.value|default:'' }}"
+            >
+            {{ field.errors }}
+        {% endfor %}
+
+        <button type="submit">ورود</button>
+
+        <a href="{% url 'signup' %}">
+            حساب کاربری ندارید؟ ثبت‌نام کنید
+        </a>
+    </form>
+</div>
+
 </body>
 </html>

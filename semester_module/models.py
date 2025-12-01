@@ -11,7 +11,7 @@ degrees_max_semesters={'کارشناسی پیوسته': 10, 'کارشناسی ن
 
 class Current_Semester(models.Model):
     semester=models.ForeignKey('Semester',on_delete=models.CASCADE,null=False,blank=False)
-    def save(self,*args):
+    def clean(self,*args):
         cond=Current_Semester.objects.exists()
         if cond:
             initial = Current_Semester.objects.all()[0].semester or None
@@ -19,7 +19,7 @@ class Current_Semester(models.Model):
                 raise ValidationError('امکان تغییر ترم فعلی تا به پایان نرسیدن آن وجود ندارد!')
             if Current_Semester.objects.exclude(id=self.id).exists():
                 raise ValidationError('تنها یک نمونه از ترم فعلی می تواند وجود داشته باشه')
-        super().save(*args)
+        super().clean(*args)
 
 
 
@@ -31,13 +31,19 @@ class Semester(models.Model):
     semester_type=models.CharField(max_length=30,choices=sem_types,default='عادی',verbose_name='نوع ترم')
     status_choices=(('شروع نشده','شروع نشده'),('انتخاب واحد','انتخاب واحد'),('جاری','جاری'),('امتحان','امتحان'),('بسته','بسته'))
     semester_status=models.CharField(verbose_name='وضعیت ترم',choices=status_choices,max_length=40,default='شروع نشده')
-    def save(self,*args):
-        start=self.start_date
-        end=self.end_date
-        if self.end_date<self.start_date or Semester.objects.exclude(id=self.id).filter(Q(end_date__gte=start,start_date__lte=end)).exists():
-            raise ValidationError(' زمان پایان ترم نمی تواند زود تر از شروع آن باشد و شروع هیچ ترمی نباید پیش از پایان ترم دیگری باشد')
+    def clean(self):
+        start = self.start_date
+        end = self.end_date
+        if self.end_date < self.start_date or Semester.objects.exclude(id=self.id).filter(
+                Q(end_date__gte=start, start_date__lte=end)).exists():
+            raise ValidationError(
+                {'start_date':' زمان پایان ترم نمی تواند زود تر از شروع آن باشد و شروع هیچ ترمی نباید پیش از پایان ترم دیگری باشد'})
         if Semester.objects.filter(semester_status='جاری'):
             raise ValidationError('امکان تعریف ترم جدید تا تمام نشدن ترم جاری وجود ندارد!')
+
+        super().clean()
+    def save(self,*args):
+
         first_time=self.id==None
         super().save(*args)
         if first_time:

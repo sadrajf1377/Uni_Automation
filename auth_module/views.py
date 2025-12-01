@@ -9,11 +9,14 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.crypto import get_random_string
+from django.utils.decorators import method_decorator
 from django.views import View
 from .forms import Login_Form,Temp_Code_Login_Form,Signup_Form
 from user_module.models import User
 from utils.email_service import send_emails
-# Create your views here.
+from django_ratelimit.decorators import ratelimit
+# Create your views here
+@method_decorator(ratelimit(key='ip',rate='5/s'),name='dispatch')
 class Login(View):
     def get(self,request):
         return render(request,'Login.html',context={'login_form':Login_Form()})

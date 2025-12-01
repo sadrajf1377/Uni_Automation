@@ -4,15 +4,96 @@
 {% block title %}ارزیابی اساتید{% endblock %}
 {% block dynamic_style %}
 <style>
-table{
-    height: fit-content;width: 50vw;margin-left: 25vw;margin-top: 12vh;
+/* جدول بررسی اساتید */
+#review_table {
+    width: 65vw;
+    margin: 12vh auto 5vh auto;
+    border-collapse: collapse;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    direction: rtl;
+    text-align: center;
+    font-family: 'Vazirmatn', sans-serif;
 }
-tr{width: 100%;height: fit-content}
-td{width: 15%;height: fit-content;font-size: calc(2vh);border: 1px solid black;text-align: center}
-td:last-child{width: 10%}
-tr:nth-child(1n){background-color: whitesmoke}
-tr:nth-child(2n){background-color: lightgray}
 
+#review_table tr {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+#review_table td {
+    flex: 1;
+    padding: 0.8rem;
+    font-size: 1.1rem;
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #003b5c;
+    background: rgba(255,255,255,0.15);
+}
+
+/* رنگ ردیف‌ها */
+#review_table tr:nth-child(odd) td {
+    background-color: rgba(255,255,255,0.25);
+}
+#review_table tr:nth-child(even) td {
+    background-color: rgba(255,255,255,0.12);
+}
+
+/* ستون آخر باریک‌تر برای متن سوال */
+#review_table td:last-child {
+    flex: 2;
+    text-align: right;
+    padding-right: 1rem;
+}
+
+/* input ها */
+#review_table input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+}
+
+/* دکمه‌ها */
+#review_table button {
+    width: 100%;
+    padding: 0.6rem 0;
+    border: none;
+    border-radius: 12px;
+    background: rgba(0,122,204,0.75);
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#review_table button:hover {
+    background: #1e90ff;
+}
+
+/* hover روی سلول‌ها */
+#review_table td:hover {
+    background: rgba(255,255,255,0.35);
+    transition: 0.25s;
+}
+
+/* موبایل */
+@media(max-width: 768px){
+    #review_table {
+        width: 90vw;
+    }
+    #review_table td {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+    }
+    #review_table td:last-child {
+        flex: 1.5;
+    }
+    #review_table button {
+        font-size: 0.9rem;
+    }
+}
 </style>
 {% endblock %}
 
@@ -43,7 +124,7 @@ tr:nth-child(2n){background-color: lightgray}
 {% endfor %}
 {% endwith %}
 <tr >
-    <td><button style="width: 100%;height: 100%;background-color: whitesmoke">ثبت تغییرات</button></td>
+    <td><button style="width: 100%;height: 100%;background-color: whitesmoke" onclick="submit_changes()">ثبت تغییرات</button></td>
     <td><form action="{% url 'close_review_session' %}" method="post" >{% csrf_token %}<input name="session_id" type="text" style="display: none" value="{{ review_session_id }}"><button style="width: 100%;height: 100%;background-color: lightgray">تایید نهایی</button></form></td>
 </tr>
 </table>

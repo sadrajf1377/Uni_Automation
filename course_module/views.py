@@ -24,6 +24,7 @@ from exam_module.models import Exam
 ##this section belongs to students views
 
 from django.core.cache import caches
+@method_decorator(restrict_view_access(profile_types=['student']),name='dispatch')
 class View_Courses_Reports(ListView):
     template_name = 'Scores_Report.html'
     model = Semester
@@ -49,7 +50,7 @@ class View_Courses_Reports(ListView):
 
         st=semesters.aggregate(total_avg=Sum('sem_average'),total_count=Count('id'))
         print('st',st)
-        self.average=st['total_avg'] if st['total_avg'] else 1/(st['total_count'] if st['total_count'] else -1)
+        self.average=st['total_avg']/st['total_count'] if st['total_avg'] else 1/(st['total_count'] if st['total_count'] else -1)
         return semesters
     def get_context_data(self, *, object_list=None, **kwargs):
         context=super().get_context_data(**kwargs)
@@ -108,7 +109,7 @@ class Create_Course(CreateView):
         obj.semester=Current_Semester.objects.all()[0]
         return obj
 
-@method_decorator(check_semester_status(status_permits_pair={'انتخاب واحد':'','جاری':'انتخاب واحد خارج از بازه'},response_type='html'),name='dispatch')
+@method_decorator(check_semester_status(status_permits_pair={'انتخاب واحد':'__all__','جاری':'انتخاب واحد خارج از بازه'},response_type='html'),name='dispatch')
 class Current_Semester_Courses(ListView):
     template_name = 'Courses_List.html'
     model = Course
@@ -132,8 +133,7 @@ class Current_Semester_Courses(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context=super().get_context_data()
         context['search_form']=Course_Filter_Form()
-        red=redis.StrictRedis.from_url(url='redis://redis:6379/1')
-        
+        red=redis.StrictRedis.from_url(url='redis://redis:6379/1',encoding='UTF-8')
         user_sem_data=json.loads(red.hget('students_stats',self.request.user.id))
         context['stats']=user_sem_data
         sem = self.request.session.get('semester')
