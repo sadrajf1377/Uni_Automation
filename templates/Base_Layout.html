@@ -12,7 +12,7 @@ body {
     font-family:'Vazirmatn', sans-serif;
     background: linear-gradient(135deg,#87cefa,#1e90ff);
     display:flex; flex-direction:column;
-    height:100vh;
+     height: fit-content;
     direction: rtl;
 }
 
@@ -169,6 +169,12 @@ body {
                 <ul>
                     <li onclick="window.open('{% url 'weekly_schedule' %}','_self')">برنامه هفتگی</li>
                     <li onclick="window.open('{% url 'courses_list' 'all' 'all' 'all' 'all' %}','_self')">دروس ارائه شده این ترم</li>
+                </ul>
+            </li>
+             <li class="parent"><span onclick="toggleNode(this)">تیکت ها ▾</span>
+                <ul>
+                    <li onclick="window.open('{% url 'my_tickets' %}','_self')">تیکت های من</li>
+
                 </ul>
             </li>
         </ul>

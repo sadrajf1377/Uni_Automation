@@ -7,13 +7,15 @@
 <style>
 #news_container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     margin-top: 2rem;
 }
 
 .news_card.xl {
     width: 100%;
-    max-width: 780px;        /* خیلی بزرگ */
+    margin-top: 1vh;
+
     background: rgba(255,255,255,0.22);
     backdrop-filter: blur(12px);
     border-radius: 22px;
@@ -68,11 +70,11 @@
 <section id="news_container">
 {% for news_obj in news %}
     <div class="news_card xl">
-        <img src="" alt="خبر">
+        <img src="{{ news_obj.images.first.image.url }}" alt="خبر">
         <h2>{{ news_obj.title }}</h2>
         <p>{{ news_obj.content }}</p>
         <div class="news_meta">
-                <span class="author">نویسنده: {{ news_obj.author.first_name }}</span>
+                <span class="author">نویسنده: {{ news_obj.author.username }}</span>
                 <span class="date">{{ news_obj.date }}</span>
             </div>
     </div>

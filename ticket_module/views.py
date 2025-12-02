@@ -64,15 +64,19 @@ class Write_Message(View):
         if frm.is_valid():
             try:
                 with transaction.atomic():
-                    frm.instance.creator=request.user
-                    request.user.tickets.get(id=frm.cleaned_data.get('ticket'))
-                    frm.save()
-                    return JsonResponse(data={'message':'پیام با موفقیت ثبت شد!'},status=201)
-            except:
+                    ticket_id=frm.cleaned_data.get('ticket').id
+                    request.user.tickets.get(id=ticket_id)
+                    mes=frm.save()
+                    return JsonResponse(data={'message':'پیام با موفقیت ثبت شد!','message_content':mes.text,'date':mes.date},status=201)
+            except Ticket.DoesNotExist:
+                return JsonResponse(data={'message': 'تیکت وارد شده معتبر نمی باشد'}, status=404)
+            except Exception as e:
+                print('exception is ',e)
                 return JsonResponse(data={'message':'مشکلی در ثبت پیام شما به وجود آمد!لطفا مجددا تلاش بفرمایید'},status=500)
         else:
             errors=''
             fields=frm.errors
+            print(frm.errors)
             for field in fields:
                 for error in frm.errors[field]:
                     errors+=error

@@ -7,24 +7,124 @@
 {% block dynamic_style %}
 <style>
 form#ticket_form{
-    margin-top: 2vh;
+    width: 50vw;
+    margin: 12vh auto;
+    padding: 2rem 0;
+    border: none;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    direction: rtl;
+    font-size: 1rem;
     text-align: center;
-height: fit-content;width: 80%;margin-left: 10%;border: none;border-radius: 1.5%;box-shadow: 1px 1px 1px lightgray;
-    font-size: calc(2vh);
+}
 
+form#ticket_form > input,
+form#ticket_form > textarea,
+form#ticket_form > select{
+    width: 60%;
+    margin: .8rem auto;
+    padding: .6rem .8rem;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.35);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    outline: none;
+    font-size: 1rem;
 }
-form#ticket_form>input,select,option,textarea{
-    height: 1.5vh;border: none;outline: none;resize: none;box-shadow: 1px 1px 1px lightgray;
-    border-radius: 1.5%;
+
+form#ticket_form > input:focus,
+form#ticket_form > textarea:focus,
+form#ticket_form > select:focus{
+    border-bottom: 1px solid #007acc;
 }
-#tickets_container
-{
-    height: fit-content;width: 80%;margin-left: 10%;text-align: right;font-size: calc(2vh);
-    display: flex;flex-direction: column;margin-top: 3vh;
+
+form#ticket_form label{
+    width: 60%;
+    margin: 0.2rem auto -0.4rem auto;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #003B5C;
+    display: block;
+    text-align: right;
 }
-#tickets_container>div.ticket{
-    height: fit-content;width: 60%;margin-left: 20%;border-radius: 1.5%;box-shadow: 2px 2px 2px lightgray;
-    background-color: lightgray; color: black;text-align: center;margin-top: 1vh;
+
+form#ticket_form button{
+    width: 60%;
+    padding: .7rem;
+    border: none;
+    border-radius: 10px;
+    margin: 1.2rem auto 0 auto;
+    background: #007acc;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+form#ticket_form button:hover{
+    background: #198fff;
+}
+
+/* ---- لیست تیکت‌ها ---- */
+
+#tickets_container{
+    width: 80%;
+    margin: 4vh auto;
+    display: flex;
+    flex-direction: column;
+    direction: rtl;
+    font-size: 1rem;
+}
+
+#tickets_container > div.ticket{
+    width: 60%;
+    margin: 1vh auto;
+    padding: 1rem 0.8rem;
+    border-radius: 16px;
+    background: rgba(240,240,240,0.55);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    text-align: center;
+    color: #003B5C;
+    line-height: 1.8rem;
+    font-weight: 500;
+}
+
+#tickets_container .ticket a{
+    display: inline-block;
+    margin-top: .6rem;
+    padding: .4rem .8rem;
+    background: #007acc;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+#tickets_container .ticket a:hover{
+    background: #198fff;
+}
+
+/* موبایل */
+@media(max-width: 768px){
+    form#ticket_form{
+        width: 90vw;
+    }
+    form#ticket_form > input,
+    form#ticket_form > textarea,
+    form#ticket_form > select,
+    form#ticket_form label,
+    form#ticket_form button{
+        width: 85%;
+    }
+    #tickets_container > div.ticket{
+        width: 85%;
+    }
 }
 </style>
 

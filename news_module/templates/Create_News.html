@@ -1,9 +1,147 @@
 {% extends 'Base_Layout.html' %}
 {% block title %}
+ایجاد خبر جدید
+{% endblock %}
+{% block dynamic_style %}
+<style>
+form#news_form{
+    width: 50vw;
+    margin: 12vh auto;
+    padding: 2rem 0;
+    border: none;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    direction: rtl;
+}
+
+form#news_form > div{
+    width: 60%;
+    margin: 1.2rem auto 0 auto;
+}
+
+form#news_form > div > input,
+form#news_form > div > textarea{
+    width: 100%;
+    padding: .6rem .8rem;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.35);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    outline: none;
+    font-size: 1rem;resize: none;
+}
+
+form#news_form > div > input:focus,
+form#news_form > div > textarea:focus{
+    border-bottom: 1px solid #007acc;
+}
+
+form#news_form > div > label{
+    font-size: 1rem;
+    font-weight: bold;
+    color: #003B5C;
+    display: block;
+    margin-bottom: .4rem;
+    text-align: right;
+}
+
+#images_container{
+    width: 60%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#images_container > img{
+    width: 65px;
+    height: 65px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+form#news_form button{
+    width: 100%;
+    padding: .7rem;
+    border: none;
+    border-radius: 10px;
+    margin-top: 1rem;
+    background: #007acc;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+form#news_form button:hover{
+    background: #198fff;
+}
+
+/* موبایل */
+@media(max-width: 768px){
+    form#news_form{
+        width: 90vw;
+    }
+    form#news_form > div{
+        width: 85%;
+    }
+}
+</style>
 
 {% endblock %}
 {% block main_content %}
+<form id="news_form" method="post" enctype="multipart/form-data" action="{% url 'create_news' %}">
+{% csrf_token %}
+<div id="images_container">
+
+</div>
+<div>
+    <label for="img_input">
+        ثبت تصاویر
+    </label>
+    <input type="file" multiple oninput="on_image_input(this)" style="display: none" id="img_input" name="news_imgs">
+</div>
+{% for field in form %}
+<div>
+<label>{{ field.label }}
+<br>
+    <p style="color:red;">
+        {{ field.errors }}
+    </p>
+</label>
+{{ field }}
+</div>
+{% endfor %}
+<div>
+
+</div>
+<div>
+    <button>ثبت خبر</button>
+</div>
+</form>
 
 
+{% endblock %}
+{% block scripts %}
+<script>
+const images_container=document.getElementById('images_container');
+
+function on_image_input(inp)
+{
+for(const file of inp.files)
+{
+    const img=document.createElement('img');
+    img.src=URL.createObjectURL(file);
+    images_container.appendChild(img);
+}
+}
+</script>
 
 {% endblock %}
