@@ -149,7 +149,7 @@ form#ticket_form button:hover{
 <section id="tickets_container">
 تیکت های من
 {% for ticket in tickets %}
-<div class="ticket">
+<div class="ticket" id="{{ ticket.id }}">
 عنوان تیکت
 <br>
 {{ ticket.title }}

@@ -1,15 +1,15 @@
 from django.db import transaction
-from django.db.models import Count, Q, When, Case, Value, IntegerField, Prefetch, OuterRef
+from django.db.models import Count, Q, When, Case, Value, IntegerField, Prefetch, OuterRef, Sum, Exists, F
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import ListView
 from .models import Ticket,User_Message,Support_Response
-from .forms import Ticket_Form,Message_Form
+from .forms import Ticket_Form,Message_Form,Response_Form
 from user_module.models import User
 # Create your views here.
 class My_Tickets_List(ListView):
-    template_name = 'User_Tickets.html'
+    template_name = 'My_Tickets.html'
     context_object_name = 'tickets'
     model=Ticket
     paginate_by = 20
@@ -100,3 +100,44 @@ class Mark_Response_As_Read(View):
             return JsonResponse(data={'message':'مشکلی در پردازش درخواست شما به وجود آمد!'},status=500)
 
 
+class Users_Tickets(View):
+    def get(self,request):
+        tickets=Ticket.objects.all()\
+            .values('subject').annotate(unread_messages=Count('messages',filter=Q(messages__responses__isnull=True),distinct=True)).order_by('-unread_messages')
+        return render(request,'Users_Tickets.html',context={'objects':tickets},status=200)
+
+
+class UnResponded_Messages(ListView):
+    model = User_Message
+    context_object_name = 'messages'
+    template_name = 'Unresponded_Messages.html'
+    paginate_by = 20
+    def get_queryset(self):
+        has_response=Support_Response.objects.filter(parent_message_id=OuterRef('pk'))
+        query=super().get_queryset().select_related('ticket').annotate(
+            author=F('ticket__creator__username'),has_response=Exists(has_response)).exclude(has_response=True).values('id','date','author','text')
+        return query
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context=super().get_context_data()
+        context['response_form']=Response_Form()
+        return context
+
+
+class Responde_To_A_Message(View):
+    def post(self,request):
+        frm=Response_Form(request.POST,request.FILES)
+        print(request.POST)
+        try:
+            with transaction.atomic():
+                if frm.is_valid():
+                    frm.save()
+                    return JsonResponse(data={'message':'پاسخ شما با موفقیت ثبت شد'},status=201)
+                else:
+                    print(frm.errors)
+                    errors=''
+                    for field in frm[errors]:
+                        errors+=field
+                    print(errors)
+                    return JsonResponse(data={'message':'مشکلی در ثبت پاسخ شما به وجود آمد!لطفا ارور ها را بررسی بفرمایید!','errors':frm.errors},status=400)
+        except:
+            return JsonResponse(data={'message':'مشکلی در ثبت پاسخ شما به وجود آمد!لطفا مجددا تلاش بفرمایید!'},status=500)

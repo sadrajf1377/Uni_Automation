@@ -1,0 +1,158 @@
+{% extends 'Base_Layout.html' %}
+
+{% block title %}
+    پیام‌های کاربر
+{% endblock %}
+
+{% block dynamic_style %}
+<style>
+/* بخش اصلی پیام‌ها */
+#messages_container {
+    width: 80%;
+    margin: 5vh auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    direction: rtl;
+}
+
+/* هر پیام */
+.message_card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    font-size: 1.1rem;
+    line-height: 1.8rem;
+}
+
+/* بخش نویسنده */
+.message_author {
+    font-weight: bold;
+    color: #003B5C;
+    margin-bottom: .4rem;
+}
+
+/* فرم پاسخ */
+#response_form {
+    width: 60%;
+    margin: 3vh auto;
+    background: rgba(255,255,255,0.45);
+    backdrop-filter: blur(6px);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    display: none;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#response_form div {
+    width: 100%;
+}
+
+#response_form label {
+    display: block;
+    margin-bottom: .4rem;
+    font-weight: bold;
+}
+
+#response_form input,
+#response_form textarea {
+    width: 100%;
+    padding: .6rem .8rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    background: rgba(255,255,255,0.7);
+}
+
+#response_form button {
+    padding: .7rem;
+    border: none;
+    border-radius: 8px;
+    background: #007acc;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: .3s;
+}
+
+#response_form button:hover {
+    background: #198fff;
+}
+
+/* موبایل */
+@media(max-width: 768px){
+    #messages_container{
+        width: 95%;
+    }
+    #response_form{
+        width: 90%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block main_content %}
+
+<!-- فرم پاسخ -->
+<form id="response_form">
+{% csrf_token %}
+    {% for field in response_form %}
+
+        <div>
+            {% if not field.is_hidden %}<label>{{ field.label }}</label>{% endif %}
+            {{ field }}
+        </div>
+
+    {% endfor %}
+    <button onclick="event.preventDefault();submit_response()">ثبت پاسخ</button>
+</form>
+
+<!-- پیام‌ها -->
+<section id="messages_container">
+    {% for message in messages %}
+        <div class="message_card" id="{{ message.id }}">
+            <div class="message_author">{{ message.author }} گفت:</div>
+            <div>{{ message.text }}</div>
+            <div style="margin-top:.6rem; font-size:.9rem; color:#555;">
+                تاریخ: {{ message.date }}
+            </div>
+           <div onclick="attach_form(this.parentElement)">
+               ثبت پاسخ
+           </div>
+        </div>
+    {% endfor %}
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const response_form = document.getElementById('response_form');
+const csrf_token=document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+/* انتقال فرم به زیر پیام انتخاب‌شده */
+function attach_form(parent){
+    response_form.style.display = 'flex';
+    const pr= response_form.querySelector('input#id_parent_message');
+    console.log(pr,parent.id);
+    pr.value=parent.id;
+    parent.appendChild(response_form);
+}
+async function submit_response()
+{
+    const data=new FormData(response_form);
+    const response=await fetch('{% url 'respond_to_messages' %}',{headers:{'X-csrftoken':csrf_token},body:data,method:"POST"});
+    const parsed_response=await response.json();
+    switch (response.status)
+    {
+        case 201:{
+            alert('پیام شما با موفقیت ثبت شد!')
+        }break;
+        default:{alert(parsed_response.message);console.log(parsed_response.errors)}break;
+    }
+}
+</script>
+{% endblock %}

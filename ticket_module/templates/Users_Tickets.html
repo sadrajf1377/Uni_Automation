@@ -1,0 +1,90 @@
+{% extends 'Base_Layout.html' %}
+
+{% block title %}
+تیکت های کاربران
+{% endblock %}
+
+{% block dynamic_style %}
+<style>
+#tickets_container{
+    width: 90%;
+    margin: 5vh auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    direction: rtl;
+}
+
+/* کارت تیکت */
+.ticket{
+    width: 100%;
+    padding: 1.5rem 2rem;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.25);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.ticket:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 6px 22px rgba(0,0,0,0.25);
+}
+
+/* بخش‌های داخل هر کارت */
+.ticket .item{
+    width: 45%;
+    text-align: right;
+}
+
+.ticket .item .label{
+    font-size: 1rem;
+    font-weight: bold;
+    color: #003B5C;
+}
+
+.ticket .item .value{
+    margin-top: .4rem;
+    font-size: 1.1rem;
+    color: #222;
+}
+
+/* موبایل */
+@media(max-width: 768px){
+    .ticket{
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .ticket .item{
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block main_content %}
+<section id="tickets_container">
+
+    {% for obj in objects %}
+    <div class="ticket">
+
+        <div class="item">
+            <div class="label">دسته‌بندی تیکت</div>
+            <div class="value">{{ obj.subject }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">تعداد پیام‌های خوانده‌نشده</div>
+            <div class="value">{{ obj.unread_messages }}</div>
+        </div>
+
+    </div>
+    {% endfor %}
+
+</section>
+{% endblock %}

@@ -12,7 +12,8 @@ body {
     font-family:'Vazirmatn', sans-serif;
     background: linear-gradient(135deg,#87cefa,#1e90ff);
     display:flex; flex-direction:column;
-     height: fit-content;
+       min-height: 100vh;
+    height: auto;
     direction: rtl;
 }
 
@@ -174,6 +175,7 @@ body {
              <li class="parent"><span onclick="toggleNode(this)">تیکت ها ▾</span>
                 <ul>
                     <li onclick="window.open('{% url 'my_tickets' %}','_self')">تیکت های من</li>
+
 
                 </ul>
             </li>
